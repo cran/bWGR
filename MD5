@@ -1,0 +1,11 @@
+652b15c6aa443f33bfcc27ae57adbc61 *DESCRIPTION
+2485867a270f4f80955ac224dbbe2e41 *NAMESPACE
+fbb1819808276f1467972cfb2044c4e5 *R/RcppExports.R
+6b5917a985818a72af88f2252ab0ac72 *R/wgr.R
+9e435db184ca5f29ebbedbce2f005787 *data/tpod.RData
+2ff1bb3abadef1def006295d67acd912 *inst/CITATION
+db631fc13a8f4c07702b1888c80dc1ce *man/bWGR.Rd
+fc26916676d87e32718fa5de0663cb7f *man/tpod.Rd
+35a0a6606aaedc2bb073bf0fd43dac1c *man/wgr.Rd
+5b49dc87250c230dd804e80a0ef79ba3 *src/KMUP.cpp
+b298f49197b0e8f79118241102b8a297 *src/RcppExports.cpp
