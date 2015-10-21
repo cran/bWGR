@@ -6,14 +6,14 @@
 Bagging Whole-Genome Regression
 }
 \description{
-Designed for whole-genome regressions using Bayesian models fitted via Gibbs sampling with optional resampling techniques (Bagging and Bootstrapping) and polygenic term with reduced of dimensionality.
+Designed for whole-genome regressions using Bayesian models fitted via Gibbs sampling with optional resampling techniques (Bagging and Bootstrapping) and polygenic term with reduced dimensionality.
 }
 \details{
 \tabular{ll}{
 Package: \tab bWGR\cr
 Type: \tab Package\cr
-Version: \tab 1.0 \cr
-Date: \tab 2015-09-25\cr
+Version: \tab 1.1 \cr
+Date: \tab 2015-10-20\cr
 License: \tab GPL-3 \cr
 }
 }
