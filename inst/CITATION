@@ -8,7 +8,7 @@ citEntry(entry = "Article",
 
   textVersion  =
   paste("Xavier A, et al. (2016).",
-        "Bagging Strong Bayesian Learners for Genomic Prediction",
+        "Bagging Strong Bayesian Learners for Genomic Prediction.",
         "Plant and Animal Genome XXIV Conference.")
 )
 

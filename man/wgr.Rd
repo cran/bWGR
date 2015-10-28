@@ -1,6 +1,7 @@
 \name{WGR}
 \alias{wgr}
 \alias{KMUP}
+\alias{KMUP2}
 \alias{.Random.seed}
 \title{
 Whole-genome Regression
@@ -9,8 +10,8 @@ Whole-genome Regression
 Univariate model to find breeding values through regression with optional resampling techniques.
 }
 \usage{
-wgr(y,gen,it=1500,bi=500,th=1,bag=1,rp=TRUE,iv=FALSE,
-    pi=0,df=5,R2=0.5,eigK=NULL,rankK=0.25,verb=FALSE)
+wgr(y,gen,it=1500,bi=500,th=1,bag=1,rp=TRUE,iv=FALSE,pi=0,
+    df=5,R2=0.5,eigK=NULL,EigT=0.05,RO=FALSE,verb=FALSE)
 }
 \arguments{
   \item{y}{
@@ -50,8 +51,11 @@ Expected R2, used to calculate the prior shape as proposed by de los Campos et a
   \item{eigK}{
 Output of function 'eigen'. Spectral decomposition of the kernel used to compute the polygenic term.
 }
-  \item{rankK}{
-Numeric between 0 and 1. Indicates the proportion of Eigenpairs used to fit the polygenic term.
+  \item{EigT}{
+Null or numeric. If provided, the model uses just Eigenpairs with Eigenvalues above the specified theshold.
+}
+  \item{RO}{
+Logical. If TRUE, regression coefficients are updated in random order.
 }
   \item{verb}{
 Logical. If verbose is TRUE, function displays MCMC progress bar.

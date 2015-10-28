@@ -1,6 +1,7 @@
-
-wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=TRUE,iv=FALSE,pi=0,df=5,R2=0.5,eigK=NULL,rankK=0.25,verb=FALSE)
-  {
+wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,
+               rp=TRUE,iv=FALSE,pi=0,df=5,R2=0.5,
+               eigK=NULL,EigT=0.05,RO=FALSE,verb=FALSE)
+{
   
   anyNA = function(x) any(is.na(x))
   if(anyNA(gen)){stop('No missing values allowed in Z')}
@@ -9,12 +10,12 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=TRUE,iv=FALSE,pi=0,df=5,R2=0.5
   
   # Polygenic term
   if(!is.null(eigK)){
-   pk = round(rankK*length(eigK$values))
-   U0 = U = eigK$vectors[,1:pk]
-   V = eigK$values[1:pk]
-   H = h = rep(0,pk)
-   Vk = rep(1,pk)
-   xxK = rep(bag,pk)
+    pk = sum(eigK$values>EigT)
+    U0 = U = eigK$vectors[,1:pk]
+    V = eigK$values[1:pk]
+    H = h = rep(0,pk)
+    Vk = rep(1,pk)
+    xxK = rep(bag,pk)
   }  
   
   # Remove missing y's
@@ -56,28 +57,69 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=TRUE,iv=FALSE,pi=0,df=5,R2=0.5
   B0 = VA = VE = VP = S = 0
   VB = G = D = B = rep(0,p)
   
+  
   #RUN
   if(verb) pb = txtProgressBar(style = 3)
   
   for(i in 1:it){
     
+    if(RO){
+      ro = sample(1:p)-1
+      rok = sample(1:pk)-1
+    }
+    
     # Resampling
     if(bag!=1) Use = sort(sample(n,n*bag,rp))
-     
+    
     # Update polygenic term and regression coefficients
     if(!is.null(eigK)){
       
       Lk = V*Ve/Vk
-      if(bag!=1){ update = KMUP(U[Use,],h,xxK,e[Use],Lk,pk,Ve,0)
-      }else{ update = KMUP(U,h,xxK,e,Lk,pk,Ve,0)}
+      if(bag!=1){
+        
+        if(RO){
+          update = KMUP2(U[Use,],h,xxK,e[Use],Lk,pk,Ve,0,rok)
+        }else{
+          update = KMUP(U[Use,],h,xxK,e[Use],Lk,pk,Ve,0)
+        }
+        
+      }else{
+        
+        if(RO){
+          update = KMUP2(U,h,xxK,e,Lk,pk,Ve,0,rok)
+        }else{
+          update = KMUP(U,h,xxK,e,Lk,pk,Ve,0)
+        }      
+        
+      }
+      
       h = update[[1]]
       e = update[[3]]
       
-      if(pi>0){PI = rbeta(1,10*pi+md+1,10*(1-pi)-md+1)
-      }else{PI=0}  
+      if(pi>0){
+        PI = rbeta(1,10*pi+md+1,10*(1-pi)-md+1)
+      }else{
+        PI=0
+      }
+      
       L = Ve/Vb
-      if(bag!=1){update = KMUP(X[Use,],b,xx,e,L,p,Ve,PI)
-      }else{ update = KMUP(X,b,xx,e,L,p,Ve,PI)}
+      if(bag!=1){
+        
+        if(RO){
+          update = KMUP2(X[Use,],b,xx,e,L,p,Ve,PI,ro)
+        }else{
+          update = KMUP(X[Use,],b,xx,e,L,p,Ve,PI)
+        }
+        
+      }else{
+        
+        if(RO){
+          update = KMUP2(X,b,xx,e,L,p,Ve,PI,ro)
+        }else{
+          update = KMUP(X,b,xx,e,L,p,Ve,PI)
+        }
+        
+      }
       b = update[[1]]
       d = update[[2]]; if(pi>0) d[is.nan(d)] = 1
       e = update[[3]]
@@ -85,12 +127,32 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=TRUE,iv=FALSE,pi=0,df=5,R2=0.5
       md = mean(d)
       
     }else{
-    
+      
       # Update regression coefficients without polygene
-      if(pi>0){PI = rbeta(1,10*pi+md+1,10*(1-pi)-md+1)}else{PI=0}  
+      if(pi>0){
+        PI = rbeta(1,10*pi+md+1,10*(1-pi)-md+1)
+      }else{
+        PI=0
+      }
+      
       L = Ve/Vb
-      if(bag!=1){update = KMUP(X[Use,],b,xx,e[Use],L,p,Ve,PI)
-      }else{ update = KMUP(X,b,xx,e,L,p,Ve,PI)}
+      if(bag!=1){
+        
+        if(RO){
+          update = KMUP2(X[Use,],b,xx,e[Use],L,p,Ve,PI,ro)
+        }else{
+          update = KMUP(X[Use,],b,xx,e[Use],L,p,Ve,PI)
+        }
+        
+      }else{
+        
+        if(RO){
+          update = KMUP2(X,b,xx,e,L,p,Ve,PI,ro) 
+        }else{
+          update = KMUP(X,b,xx,e,L,p,Ve,PI)
+        }
+        
+      }
       b = update[[1]]
       d = update[[2]]; if(pi>0) d[is.nan(d)] = 1
       e = update[[3]]
@@ -98,7 +160,7 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=TRUE,iv=FALSE,pi=0,df=5,R2=0.5
       md = mean(d)
       
     }
-            
+    
     # Update genetic variance
     if(iv){    
       Vb = (S_conj+b^2)/rchisq(p,df_prior + 1)
@@ -115,13 +177,13 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=TRUE,iv=FALSE,pi=0,df=5,R2=0.5
     
     # Residual variance
     Ve = (sum(e*e)+S_prior)/rchisq(1,n*bag + df_prior)
-        
+    
     # Intercept
     if(!is.null(eigK)){e = y-X%*%g-U%*%h}else{e = y-X%*%g}
-      mu = rnorm(1,mean(e),(Ve+1E-5)/n)
-      if(is.na(mu)||is.nan(mu)) mu = mean(y,na.rm=T)
+    mu = rnorm(1,mean(e),(Ve+1E-5)/n)
+    if(is.na(mu)||is.nan(mu)) mu = mean(y,na.rm=T)
     e = e-mu
-
+    
     # Save posterior
     if(i%in%post){
       B0 = B0+mu
@@ -171,7 +233,7 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=TRUE,iv=FALSE,pi=0,df=5,R2=0.5
     }
   }
   
-
+  
   
   return(final)
 }

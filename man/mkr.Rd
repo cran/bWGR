@@ -8,7 +8,7 @@ Multivariate model to find breeding values through reproducing kernel Hilbert sp
 }
 \usage{
 mkr(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
-    df=-2,S=0,EigT=0.05,verb=TRUE)
+    df=5,R2=0.5,EigT=0.05,verb=FALSE)
 }
 \arguments{
   \item{Y}{
@@ -32,11 +32,9 @@ Integer. Thinning parameter, used to save memory by storing only one every 'th' 
   \item{df}{
 Prior degrees of freedom for covariance components.
 }
-
-  \item{S}{
-Prior shape for covariance components.
+  \item{R2}{
+Expected R2, used to calculate the prior shape as proposed by de los Campos et al. (2013).
 }
-
   \item{EigT}{
 Null or numeric. If provided, the model uses just Eigenpairs with Eigenvalues above the specified theshold.
 }
@@ -48,23 +46,18 @@ Logical. If verbose is TRUE, function displays MCMC progress bar.
 \details{
 The model for the kernel regression is as follows:
 
-\eqn{Y = Mu + Z(UB) + E},
+\eqn{Y = mu + Z(UB) + E},
 
-where \eqn{Y} is a matrix of response variables, \eqn{Mu} is the vector of intercepts, \eqn{Z} is the design matrix, \eqn{U} is the matrix of Eigenvector of K, \eqn{b} is a vector of regression coefficients and \eqn{E} is the residual matrix.
-
-Variance components are sampled from a inverse Wishart distribution (Sorensen and Gianola 2002). Regression coefficients are solved with an adaptation of the algorithm proposed by de los Campos et al. (2010), where the regularization parameter (\eqn{\lambda}) is define (in a bi-variate case) as:
-
-\eqn{\lambda = 
-  ((\sigma2(e,\alpha) + \sigma(e,\alpha\beta))/
-  (\sigma2(a,\alpha) + \sigma(a,\alpha\beta))
-  }
+where \eqn{Y} is a matrix of response variables, \eqn{mu} represents the intercepts, \eqn{Z} is the design matrix, \eqn{U} is the matrix of Eigenvector of K, \eqn{b} is a vector of regression coefficients and \eqn{E} is the residual matrix. Variance components are sampled from a inverse Wishart distribution (Sorensen and Gianola 2002). Regression coefficients are solved with an adaptation of the algorithm proposed by de los Campos et al. (2010).
 
 }
 \value{
-The function mkr returns a list with the random effect covariance matrix (\eqn{VA}), residual covariance matrix (\eqn{VA}) and a matrix with breeding values (\eqn{BV}).
+The function mkr returns a list with the random effect covariance matrix (\eqn{VA}), residual covariance matrix (\eqn{VE}) and a matrix with breeding values (\eqn{BV}).
 }
 
 \references{
+
+de los Campos, G., Hickey, J. M., Pong-Wong, R., Daetwyler, H. D., and Calus, M. P. (2013). Whole-genome regression and prediction methods applied to plant and animal breeding. Genetics, 193(2), 327-345.
 
 de los Campos, G., Gianola, D., Rosa, G. J., Weigel, K. A., & Crossa, J. (2010). Semi-parametric genomic-enabled prediction of genetic values using reproducing kernel Hilbert spaces methods. Genetics Research, 92(04), 295-308.
 
@@ -87,7 +80,7 @@ Y3 = rnorm(196,y,.3)
 Phe = cbind(Y1,Y2,Y3)
 
 # Fit model
-test = mkr(Phe,G,verb=FALSE)
+test = mkr(Phe,G)
 
 # Genetic correlation
 cov2cor(test$VA)
