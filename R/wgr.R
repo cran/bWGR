@@ -23,7 +23,7 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,
     mis = which(is.na(y))
     y = y[-mis]
     gen = gen[-mis,]
-    if(!is.null(eigK)) U = U[,-mis]
+    if(!is.null(eigK)) U = U[-mis,]
   }
   
   # MCMC settings
@@ -65,7 +65,7 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,
     
     if(RO){
       ro = sample(1:p)-1
-      rok = sample(1:pk)-1
+      if(!is.null(eigK)) rok = sample(1:pk)-1
     }
     
     # Resampling
@@ -74,7 +74,7 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,
     # Update polygenic term and regression coefficients
     if(!is.null(eigK)){
       
-      Lk = V*Ve/Vk
+      Lk = Ve/(Vk*V)
       if(bag!=1){
         
         if(RO){

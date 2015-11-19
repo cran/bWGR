@@ -12,8 +12,8 @@ Designed for whole-genome regressions using Bayesian models fitted via Gibbs sam
 \tabular{ll}{
 Package: \tab bWGR\cr
 Type: \tab Package\cr
-Version: \tab 1.2 \cr
-Date: \tab 2015-10-28\cr
+Version: \tab 1.3 \cr
+Date: \tab 2015-11-11\cr
 License: \tab GPL-3 \cr
 }
 }
