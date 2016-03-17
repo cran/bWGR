@@ -1,5 +1,6 @@
 \name{MKR}
 \alias{mkr}
+\alias{Hmat}
 \title{
 Multivariate Kernel regression
 }
