@@ -10,9 +10,12 @@ mkr = function(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
   if(!is.null(EigT)) {U=U[,1:sum(D>EigT)];D=D[D>EigT]}
   k = ncol(Y)
   n = nrow(Y)
-  p = ncol(U)  
+  p = ncol(U)
+  d = rep(1,p)
   sk_prior = R2*apply(Y,2,var,na.rm=T)*(df+2)
   s = diag(sk_prior*df,k)
+  se_prior = (1-R2)*apply(Y,2,var,na.rm=T)*(df+2)
+  se = diag(se_prior*df,k)
   N = crossprod(!is.na(Y))
   mN = mean(N)
   B = matrix(0,p,k)
@@ -49,8 +52,8 @@ mkr = function(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
     for(i in 1:k){
       
       L = mEA[i]/D
-      up = KMUP(X=U[z[[i]],],b=B[,i],xx=xx,
-                E=E[z[[i]],i],L=L,p=p,Ve=VE[i,i],pi=0)
+      up = KMUP(X=U[z[[i]],],b=B[,i],d=d,xx=xx,
+                E=E[z[[i]],i],L=L,Ve=VE[i,i],pi=0)
       B[,i] = up[[1]]    
       err = up[[3]]
       mu[i] = rnorm(1,mu[i]+mean(err),VE[i,i]/N[i,i])
@@ -61,7 +64,7 @@ mkr = function(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
     SSa = crossprod(B/D,B)
     VA = solve(rWishart(1,p+df,solve(SSa+s))[,,1])
     SSe = (crossprod(E)/N)*mN
-    VE = solve(rWishart(1,mN+2,solve(SSe))[,,1])
+    VE = solve(rWishart(1,mN+2,solve(SSe+se))[,,1])
     
     if(j%in%mc){
       mcMu = mcMu + mu
@@ -85,7 +88,6 @@ mkr = function(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
   final = list('BV'=A,'VA'=mcVA,'VE'=mcVE)
   return(final)
 }
-
 
 Hmat = function (ped,gen=NULL,Diss=FALSE,inbred=FALSE){
   

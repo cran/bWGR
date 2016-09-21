@@ -1,49 +1,59 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 // [[Rcpp::export]]
-SEXP KMUP2(NumericMatrix X, NumericVector b,
-            NumericVector xx, NumericVector E,
-            NumericVector L, int p, double Ve,
-            double pi, IntegerVector ro){
-              
-  RNGScope scope;
-  NumericVector g = b;
-  NumericVector e = E;
-  NumericVector d(p);
-  double G;
-  double ee;
-  double EE;
-  double include;
-  double exclude;
-  int i;
+SEXP KMUP2(NumericMatrix X, NumericVector Use, NumericVector b,
+          NumericVector d, NumericVector xx, NumericVector E,
+          NumericVector L, double Ve, double pi){
   
-  for(int j=0; j<p; j++){
-    
-      i = ro(j);
-      G = g[i];
-      g[i] = R::rnorm(
-      (sum(X(_,i)*E) + xx(i)*G)/(xx(i)+L(i)),
-      sqrt(Ve/(xx(i)+L(i))));
-    
+  RNGScope scope;
+  int p = X.ncol();
+  int n0 = X.nrow();
+  int n = Use.size();
+  double bg = n0/n;
+  NumericVector E0(n);
+  NumericVector H(n);
+  for(int k=0; k<n; k++){
+    E0[k] = E[Use[k]];
+  }
+  NumericVector g = b;
+  NumericVector e1 = E0;
+  NumericVector e2 = E0;
+  double G,G0,Gp,D,pj,LR;
+  double Cons = -0.5/Ve;
+  double Pi0 = (1-pi)/pi;
+  
+  for(int i=0; i<p; i++){
+    G0 = g[i];
+    for(int x=0; x<n; x++){
+      H[x] = X(Use[x],i);
+    }
+    G = R::rnorm((sum(H*E0)+G0)/(xx(i)*bg+L(i)),
+                  sqrt(Ve/(xx(i)*bg+L(i))));
+    Gp = G*pi;
+    e1 = E0 - H*(G-G0);
     if(pi>0){
-      
-      e = E - X(_,i) * (g[i]-G);
-      ee = sum(e*e);
-      EE = sum(E*E);
-      include = (1-pi) * exp(-ee/(2*Ve));
-      exclude = pi * exp(-EE/(2*Ve));
-      d[i] = R::rbinom(1,include/(include+exclude));
-      E = e;
-      
-    }else{
-      
+      e2 = E0 - H*(Gp-G0);
+      LR = Pi0*exp(Cons*(sum(e1*e1)-sum(e2*e2)));
+      pj = 1-1/(1+LR);
+      D = R::rbinom(1,pj);
+     if(D==0){
+      d[i] = 0;
+      g[i] = Gp;
+      E0 = e2;
+     }else{
       d[i] = 1;
-      E = E - X(_,i) * (g[i]-G);
-      
+      g[i] = G;
+      E0 = e1;
+     }
+    }else{
+      d[i] = 1;
+      g[i] = G;
+      E0 = e1;
     }
   }
   
+  
    return List::create(Named("b") = g,
                        Named("d") = d,
-                       Named("e") = E);
+                       Named("e") = E0);
 }
