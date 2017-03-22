@@ -1,23 +1,23 @@
-\name{WGR (MCMC)}
+\name{WGR1 (MCMC)}
 \alias{wgr}
 \alias{KMUP}
 \alias{KMUP2}
+\alias{GSEN}
 \title{
 Whole-genome Regression
 }
 \description{
-Univariate model to find breeding values through regression with optional resampling techniques.
+Univariate model to find breeding values through regression with optional resampling techniques (SBMC) and polygenic term (Kernel).
 }
 \usage{
-wgr(y,gen,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,
+wgr(y,X,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,de=FALSE,
     pi=0,df=5,R2=0.5,eigK=NULL,VarK=0.95,verb=FALSE)
-
 }
 \arguments{
   \item{y}{
 Numeric vector of observations (\eqn{n}) describing the trait to be analyzed. \code{NA} is allowed.
 }
-  \item{gen}{
+  \item{X}{
 Numeric matrix containing the genotypic data. A matrix with \eqn{n}
 rows of observations and (\eqn{m}) columns of molecular markers.
 }
@@ -37,7 +37,10 @@ If different than one (= complete data), it indicates the proportion of data to 
 Logical. Use replacement for bootstrap samples when bag is different than one.
 }
   \item{iv}{
-Logical. Assign markers independent variance. If true, turns the default model BLUP into BayesA. For this model, the shape parameter is conjugated by a gamma with hyperpriors calculated based on the R2 rule.
+Logical. Assign markers independent variance, hence T prior. If true, turns the default model BLUP into BayesA. For this model, the shape parameter is conjugated by a gamma with hyperpriors calculated based on the R2 rule.
+}
+  \item{de}{
+Logical. Assign markers independent variance through double-exponential prior. If true, turns the default model BLUP into Bayesian LASSO. This argument overides iv.
 }
   \item{pi}{
 Value between 0 and 1. If greater than zero it activates variable selection, where markers have expected probability pi of having null effect (or 1-pi if pi>0.5). The model conjugates variable selection from a Beta-Binomial distribution.
@@ -65,7 +68,7 @@ The model for the whole-genome regression is as follows:
 
 where \eqn{y} is the response variable, \eqn{mu} is the intercept, \eqn{X} is the genotypic matrix, \eqn{g} is the regression coefficient as the product of \eqn{b}x\eqn{d}, \eqn{b} is the effect of an allele substitution, \eqn{d} is an indicator variable that define whether or not the marker should be included into the model, \eqn{u} is the polygenic term and \eqn{e} is the residual term.
 
-Users can obtain four WGR methods out of this function: BRR (pi=0,iv=F), BayesA (pi=0,iv=T), BayesB (pi=0.01,iv=T) and BayesC (pi=0.01,iv=F). The full theoretical basis of each model is described by de los Campos et al. (2013).
+Users can obtain four WGR methods out of this function: BRR (pi=0,iv=F), BayesA (pi=0,iv=T), BayesB (pi=0.01,iv=T), BayesC (pi=0.01,iv=F) and BayesL (pi=0,de=T). The full theoretical basis of each model is described by de los Campos et al. (2013).
 
 Gibbs sampler that updates regression coefficients is adapted from GSRU algorithm (Legarra and Misztal 2008). The variable selection works through the unconditional prior algorithm proposed by Kuo and Mallick (1998). The polygenic term is solved by Bayesian algorithm of reproducing kernel Hilbert Spaces proposed by de los Campos et al. (2010).
 }
@@ -87,23 +90,30 @@ Legarra, A., & Misztal, I. (2008). Technical note: Computing strategies in genom
 Alencar Xavier
 }
 \examples{
-
+# Load data
 data(tpod)
-gen = gen[,seq(1,376,5)]
 
 # BLUP
-BRR = wgr(y,gen,iv=FALSE,pi=0,bag=0.8,rp=TRUE,it=200,bi=50)
+BRR = wgr(y,gen,iv=FALSE,pi=0,it=200,bi=50)
 cor(y,BRR$hat)
 
 # BayesA
-BA = wgr(y,gen,iv=TRUE,pi=0,bag=0.8,rp=TRUE,it=200,bi=50)
-cor(y,BA$hat)
+BayesA = wgr(y,gen,iv=TRUE,pi=0,it=200,bi=50)
+cor(y,BayesA$hat)
 
 # BayesB
-BB = wgr(y,gen,iv=TRUE,pi=.01,bag=0.8,rp=TRUE,it=200,bi=50)
-cor(y,BB$hat)
+BayesB = wgr(y,gen,iv=TRUE,pi=.01,it=200,bi=50)
+cor(y,BayesB$hat)
 
 # BayesC
-BC = wgr(y,gen,iv=FALSE,pi=.01,bag=0.8,rp=TRUE,it=200,bi=50)
-cor(y,BC$hat)
+BayesC = wgr(y,gen,iv=FALSE,pi=.01,it=200,bi=50)
+cor(y,BayesC$hat)
+
+# BayesL
+BayesL = wgr(y,gen,de=TRUE,it=200,bi=50)
+cor(y,BayesL$hat)
+
+# Bagging BLUP
+Bag = wgr(y,gen,bag=0.5,it=200,bi=50)
+cor(y,Bag$hat)
 }

@@ -1,11 +1,11 @@
-\name{MKR}
+\name{WGR3 (MKR)}
 \alias{mkr}
 \alias{Hmat}
 \title{
-Multivariate Kernel regression
+Multivariate Kernel Regression
 }
 \description{
-Multivariate model to find breeding values through reproducing kernel Hilbert spaces.
+Multivariate model to find breeding values through kernel regression.
 }
 \usage{
 mkr(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,

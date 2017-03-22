@@ -1,13 +1,33 @@
+#' @useDynLib bWGR
+#' @importFrom Rcpp sourceCpp
+#' @import stats
+#' @import utils
 
-wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,pi=0,df=5,R2=0.5,eigK=NULL,VarK=0.95,verb=FALSE){
+wgr = function(y,X,
+               it=1500,bi=500,th=1,
+               bag=1,rp=FALSE,
+               iv=FALSE,de=FALSE,pi=0,
+               df=5,R2=0.5,
+               eigK=NULL,VarK=0.95,
+               verb=FALSE){
+  
+  if(de) iv=TRUE
   anyNA = function(x) any(is.na(x))
-  if(anyNA(gen)){stop('No missing values allowed in Z')}
+  # Imputation with expectation
+  if(anyNA(X)){
+    cat('Imputing missing genotypes\n')
+    imp = function(x){
+      x[is.na(x)] = mean(x,na.rm=TRUE)
+      x[is.nan(x)] = 0
+      return(x)}
+    X = apply(X,2,imp)}
   if(pi>0.5) pi=1-pi; pi=min(pi,0.25)
-  gen0 = gen
+  if(bag!=1) df = df/(bag^2)
+  gen0 = X
   # Polygenic term
   if(!is.null(eigK)){
     V = eigK$values
-    pk = which.max(cumsum(V)/length(V)<VarK)
+    pk = which.max((cumsum(V)/length(V))>VarK)
     U0 = U = eigK$vectors[,1:pk]
     V = V[1:pk]
     H = h = rep(0,pk)
@@ -19,28 +39,27 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,pi=0,df=5,R2=0.
   if(anyNA(y)){
     mis = which(is.na(y))
     y = y[-mis]
-    gen = gen[-mis,]
+    X = X[-mis,]
     if(!is.null(eigK)) U = U[-mis,]
   }
   # MCMC settings
   post = seq(bi,it,th)
   mc = length(post)
   # Preparing inputs
-  X = gen
-  n = nrow(gen)
-  p = ncol(gen)
+  n = nrow(X)
+  p = ncol(X)
   xx = apply(X,2,crossprod)*bag
   b = rep(0,p)
   d = rep(1,p)
   mu = mean(y - X%*%b)
   e = y - mu
-  Va = 0.0001
+  MSx = sum(apply(X,2,var,na.rm=T))
+  Va = MSx
   Vb = rep(Va,p)
   Ve = 1
-  L = Ve/Vb
+  L = Vb/Ve
   # Priors
   df_prior = df 
-  MSx = sum(apply(X,2,var,na.rm=T))
   Sb_prior = R2*var(y,na.rm=T)*(df_prior+2)/MSx/ifelse(pi==0,1,pi)
   Se_prior = (1-R2)*var(y,na.rm=T)*(df_prior+2)
   shape_prior  = 1.1
@@ -58,11 +77,17 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,pi=0,df=5,R2=0.
     # Update polygenic term and regression coefficients
     if(!is.null(eigK)){
       Lk = Ve/(V*Vk)
-      if(bag!=1){ update = KMUP2(U,Use,h,dh,xxK,e,Lk,Ve,0)
-      }else{ update = KMUP(U,h,dh,xxK,e,Lk,Ve,0)}
+      if(bag!=1){
+        update = KMUP2(U,Use,h,dh,xxK,e,Lk,Ve,0)
+      }else{
+        update = KMUP(U,h,dh,xxK,e,Lk,Ve,0)
+        }
       h = update[[1]]
       e = update[[3]]
-      if(bag!=1){update = KMUP2(X,Use,b,d,xx,e,L,Ve,pi)}else{update = KMUP(X,b,d,xx,e,L,Ve,pi)}
+      if(bag!=1){
+        update = KMUP2(X,Use,b,d,xx,e,L,Ve,pi)
+      }else{
+          update = KMUP(X,b,d,xx,e,L,Ve,pi)}
       if(pi>0) d = update[[2]]
       b = update[[1]]
       e = update[[3]]
@@ -75,12 +100,27 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,pi=0,df=5,R2=0.
     }
     # Update genetic variance
     if(iv){
+      # Variable selection?
       if(pi>0){
         q = d; q[q==0]=pi
-        Vb = (S_conj+(b/q)^2)/rchisq(p,df_prior+1)
+        # Laplace?
+        if(de){
+          Vb = sqrt( (b/q)^2*Ve/MSx )
+        }else{
+          # T?
+          Vb = (S_conj+(b/q)^2)/rchisq(p,df_prior+1)
+        }
+      # All-in?
       }else{
-        Vb = (S_conj+b^2)/rchisq(p,df_prior+1)
+        # Laplace?
+        if(de){
+          Vb = sqrt( b^2*Ve/MSx )
+        }else{
+          # T?
+          Vb = (S_conj+b^2)/rchisq(p,df_prior+1)
+        }
       }
+      
       S_conj = rgamma(1,p*df_prior/2+shape_prior,sum(1/Vb)/2+rate_prior)
     }else{
       Va = (crossprod(b)+Sb_prior)/rchisq(1,df_prior+p)
@@ -95,7 +135,7 @@ wgr = function(y,gen,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,pi=0,df=5,R2=0.
     L = Ve/Vb;
     # Intercept
     if(!is.null(eigK)){e = y-mu-X%*%b-U%*%h}else{e = y-mu-X%*%b}
-    mu0 = rnorm(1,mean(e),Ve/n)
+    mu0 = rnorm(1,mean(e), Ve/n )
     mu = mu+mu0
     e = e-mu0
     # Save posterior
