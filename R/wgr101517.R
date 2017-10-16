@@ -21,7 +21,6 @@ wgr = function(y,X,
       x[is.nan(x)] = 0
       return(x)}
     X = apply(X,2,imp)}
-  if(pi>0.5) pi=1-pi; pi=min(pi,0.25)
   if(bag!=1) df = df/(bag^2)
   gen0 = X
   # Polygenic term
@@ -58,14 +57,11 @@ wgr = function(y,X,
   Vb = rep(Va,p)
   Ve = 1
   L = Vb/Ve
-  # Priors
-  df_prior = df 
-  Sb_prior = R2*var(y,na.rm=T)*(df_prior+2)/MSx/ifelse(pi==0,1,pi)
-  Se_prior = (1-R2)*var(y,na.rm=T)*(df_prior+2)
-  shape_prior  = 1.1
-  rate_prior = (shape_prior-1)/Sb_prior
-  S_conj = rgamma(1,p*df_prior/2+shape_prior,sum(1/Vb)/2+rate_prior)
-  if(!is.null(eigK)) Sk_prior = R2*var(y,na.rm=T)*(df_prior+2)
+  vy = var(y,na.rm=T)
+  # Priors 10/15/17
+  Sb = (R2)*df*vy/MSx;
+  Se = (1-R2)*df*vy;
+  if(!is.null(eigK)) Sk = R2*var(y,na.rm=T)*(df+2)
   # Storing Posterior
   B0 = VA = VE = VP = S = 0
   VB = D = B = rep(0,p)
@@ -84,10 +80,7 @@ wgr = function(y,X,
         }
       h = update[[1]]
       e = update[[3]]
-      if(bag!=1){
-        update = KMUP2(X,Use,b,d,xx,e,L,Ve,pi)
-      }else{
-          update = KMUP(X,b,d,xx,e,L,Ve,pi)}
+      if(bag!=1){update = KMUP2(X,Use,b,d,xx,e,L,Ve,pi)}else{update = KMUP(X,b,d,xx,e,L,Ve,pi)}
       if(pi>0) d = update[[2]]
       b = update[[1]]
       e = update[[3]]
@@ -103,12 +96,12 @@ wgr = function(y,X,
       # Variable selection?
       if(pi>0){
         q = d; q[q==0]=pi
-        # Laplace?
         if(de){
-          Vb = sqrt( (b/q)^2*Ve/MSx )
+          # Laplace?
+          Vb = sqrt( b^2*Ve/MSx )
         }else{
           # T?
-          Vb = (S_conj+(b/q)^2)/rchisq(p,df_prior+1)
+          Vb = (Sb+(b)^2)/rchisq(p,df+1)
         }
       # All-in?
       }else{
@@ -117,21 +110,19 @@ wgr = function(y,X,
           Vb = sqrt( b^2*Ve/MSx )
         }else{
           # T?
-          Vb = (S_conj+b^2)/rchisq(p,df_prior+1)
+          Vb = (Sb+b^2)/rchisq(p,df+1)
         }
       }
-      
-      S_conj = rgamma(1,p*df_prior/2+shape_prior,sum(1/Vb)/2+rate_prior)
     }else{
-      Va = (crossprod(b)+Sb_prior)/rchisq(1,df_prior+p)
+      Va = (crossprod(b)+Sb)/rchisq(1,df+p)
       Vb = rep(Va,p)
     }
     if(!is.null(eigK)){
-      Vp = (sum(h^2/V)+Sk_prior)/rchisq(1,df_prior+pk)
+      Vp = (sum(h^2/V)+Sk)/rchisq(1,df+pk)
       Vk = rep(Vp,pk)
     }
     # Residual variance
-    Ve = (crossprod(e)+Se_prior)/rchisq(1,n*bag+df_prior)
+    Ve = (crossprod(e)+Se)/rchisq(1,n*bag+df)
     L = Ve/Vb;
     # Intercept
     if(!is.null(eigK)){e = y-mu-X%*%b-U%*%h}else{e = y-mu-X%*%b}

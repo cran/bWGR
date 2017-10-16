@@ -53,7 +53,7 @@ mkr = function(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
       
       L = mEA[i]/D
       up = KMUP(X=U[z[[i]],],b=B[,i],d=d,xx=xx,
-                E=E[z[[i]],i],L=L,Ve=VE[i,i],pi=0)
+                e=E[z[[i]],i],L=L,Ve=VE[i,i],pi=0)
       B[,i] = up[[1]]    
       err = up[[3]]
       mu[i] = rnorm(1,mu[i]+mean(err),VE[i,i]/N[i,i])
