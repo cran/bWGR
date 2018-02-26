@@ -142,7 +142,7 @@ SEXP emBA(NumericVector y, NumericMatrix gen, double df = 4, double R2 = 0.5){
     e = e-eM;
   }
   double vg = sum(vb);
-  h2 = vg/(vg+ve);
+  h2 = 1-ve/var(y);
   NumericVector fit(n);
   for(int k=0; k<n; k++){
     fit[k] = sum(gen(k,_)*b)+mu;
@@ -280,7 +280,7 @@ SEXP emBC(NumericVector y, NumericMatrix gen, double df = 4, double R2 = 0.5, do
     e = e-eM;
   }
   va = mean(xx)*(sum(b*b)+Sb)/(p+df)/Pi;
-  h2 = va/(va+ve);
+  h2 = 1-ve/var(y);
   NumericVector fit(n);
   for(int k=0; k<n; k++){
     fit[k] = sum(gen(k,_)*b)+mu;
@@ -332,7 +332,7 @@ SEXP emRR(NumericVector y, NumericMatrix gen, double df = 4, double R2 = 0.5){
   }
   va = sqrt(vb)*mean(xx);
   ve = sqrt(ve);
-  h2 = (va/(va+ve))*(va/(va+ve));
+  h2 = 1-ve/var(y);
   NumericVector fit(n);
   for(int k=0; k<n; k++){
     fit[k] = sum(gen(k,_)*b)+mu;

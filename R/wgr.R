@@ -1,7 +1,3 @@
-#' @useDynLib bWGR
-#' @importFrom Rcpp sourceCpp
-#' @import stats
-#' @import utils
 
 wgr = function(y,X,
                it=1500,bi=500,th=1,
@@ -77,7 +73,7 @@ wgr = function(y,X,
         update = KMUP2(U,Use,h,dh,xxK,e,Lk,Ve,0)
       }else{
         update = KMUP(U,h,dh,xxK,e,Lk,Ve,0)
-        }
+      }
       h = update[[1]]
       e = update[[3]]
       if(bag!=1){update = KMUP2(X,Use,b,d,xx,e,L,Ve,pi)}else{update = KMUP(X,b,d,xx,e,L,Ve,pi)}
@@ -103,7 +99,7 @@ wgr = function(y,X,
           # T?
           Vb = (Sb+(b)^2)/rchisq(p,df+1)
         }
-      # All-in?
+        # All-in?
       }else{
         # Laplace?
         if(de){
@@ -122,7 +118,7 @@ wgr = function(y,X,
       Vk = rep(Vp,pk)
     }
     # Residual variance
-    Ve = (crossprod(e)+Se)/rchisq(1,n*bag+df)
+    Ve = (crossprod(e)+Se)[1,1]/rchisq(1,n*bag+df)
     L = Ve/Vb;
     # Intercept
     if(!is.null(eigK)){e = y-mu-X%*%b-U%*%h}else{e = y-mu-X%*%b}
