@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // KMUP
 SEXP KMUP(NumericMatrix X, NumericVector b, NumericVector d, NumericVector xx, NumericVector e, NumericVector L, double Ve, double pi);
-RcppExport SEXP bWGR_KMUP(SEXP XSEXP, SEXP bSEXP, SEXP dSEXP, SEXP xxSEXP, SEXP eSEXP, SEXP LSEXP, SEXP VeSEXP, SEXP piSEXP) {
+RcppExport SEXP _bWGR_KMUP(SEXP XSEXP, SEXP bSEXP, SEXP dSEXP, SEXP xxSEXP, SEXP eSEXP, SEXP LSEXP, SEXP VeSEXP, SEXP piSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,7 +25,7 @@ END_RCPP
 }
 // KMUP2
 SEXP KMUP2(NumericMatrix X, NumericVector Use, NumericVector b, NumericVector d, NumericVector xx, NumericVector E, NumericVector L, double Ve, double pi);
-RcppExport SEXP bWGR_KMUP2(SEXP XSEXP, SEXP UseSEXP, SEXP bSEXP, SEXP dSEXP, SEXP xxSEXP, SEXP ESEXP, SEXP LSEXP, SEXP VeSEXP, SEXP piSEXP) {
+RcppExport SEXP _bWGR_KMUP2(SEXP XSEXP, SEXP UseSEXP, SEXP bSEXP, SEXP dSEXP, SEXP xxSEXP, SEXP ESEXP, SEXP LSEXP, SEXP VeSEXP, SEXP piSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,7 +44,7 @@ END_RCPP
 }
 // emBA
 SEXP emBA(NumericVector y, NumericMatrix gen, double df, double R2);
-RcppExport SEXP bWGR_emBA(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP) {
+RcppExport SEXP _bWGR_emBA(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -58,7 +58,7 @@ END_RCPP
 }
 // emBB
 SEXP emBB(NumericVector y, NumericMatrix gen, double df, double R2, double Pi);
-RcppExport SEXP bWGR_emBB(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP, SEXP PiSEXP) {
+RcppExport SEXP _bWGR_emBB(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP, SEXP PiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -73,7 +73,7 @@ END_RCPP
 }
 // emBC
 SEXP emBC(NumericVector y, NumericMatrix gen, double df, double R2, double Pi);
-RcppExport SEXP bWGR_emBC(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP, SEXP PiSEXP) {
+RcppExport SEXP _bWGR_emBC(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP, SEXP PiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -88,7 +88,7 @@ END_RCPP
 }
 // emRR
 SEXP emRR(NumericVector y, NumericMatrix gen, double df, double R2);
-RcppExport SEXP bWGR_emRR(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP) {
+RcppExport SEXP _bWGR_emRR(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -102,7 +102,7 @@ END_RCPP
 }
 // emBL
 SEXP emBL(NumericVector y, NumericMatrix gen, double R2, double alpha);
-RcppExport SEXP bWGR_emBL(SEXP ySEXP, SEXP genSEXP, SEXP R2SEXP, SEXP alphaSEXP) {
+RcppExport SEXP _bWGR_emBL(SEXP ySEXP, SEXP genSEXP, SEXP R2SEXP, SEXP alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -116,7 +116,7 @@ END_RCPP
 }
 // emDE
 SEXP emDE(NumericVector y, NumericMatrix gen, double R2);
-RcppExport SEXP bWGR_emDE(SEXP ySEXP, SEXP genSEXP, SEXP R2SEXP) {
+RcppExport SEXP _bWGR_emDE(SEXP ySEXP, SEXP genSEXP, SEXP R2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -129,7 +129,7 @@ END_RCPP
 }
 // emEN
 SEXP emEN(NumericVector y, NumericMatrix gen, double R2, double alpha);
-RcppExport SEXP bWGR_emEN(SEXP ySEXP, SEXP genSEXP, SEXP R2SEXP, SEXP alphaSEXP) {
+RcppExport SEXP _bWGR_emEN(SEXP ySEXP, SEXP genSEXP, SEXP R2SEXP, SEXP alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -143,7 +143,7 @@ END_RCPP
 }
 // BayesB
 SEXP BayesB(NumericVector y, NumericMatrix X, double it, double bi, double pi, double df, double R2);
-RcppExport SEXP bWGR_BayesB(SEXP ySEXP, SEXP XSEXP, SEXP itSEXP, SEXP biSEXP, SEXP piSEXP, SEXP dfSEXP, SEXP R2SEXP) {
+RcppExport SEXP _bWGR_BayesB(SEXP ySEXP, SEXP XSEXP, SEXP itSEXP, SEXP biSEXP, SEXP piSEXP, SEXP dfSEXP, SEXP R2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -157,4 +157,23 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(BayesB(y, X, it, bi, pi, df, R2));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
+    {"_bWGR_KMUP2", (DL_FUNC) &_bWGR_KMUP2, 9},
+    {"_bWGR_emBA", (DL_FUNC) &_bWGR_emBA, 4},
+    {"_bWGR_emBB", (DL_FUNC) &_bWGR_emBB, 5},
+    {"_bWGR_emBC", (DL_FUNC) &_bWGR_emBC, 5},
+    {"_bWGR_emRR", (DL_FUNC) &_bWGR_emRR, 4},
+    {"_bWGR_emBL", (DL_FUNC) &_bWGR_emBL, 4},
+    {"_bWGR_emDE", (DL_FUNC) &_bWGR_emDE, 3},
+    {"_bWGR_emEN", (DL_FUNC) &_bWGR_emEN, 4},
+    {"_bWGR_BayesB", (DL_FUNC) &_bWGR_BayesB, 7},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_bWGR(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }
