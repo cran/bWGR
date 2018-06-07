@@ -41,3 +41,19 @@ BayesB <- function(y, X, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
     .Call('_bWGR_BayesB', PACKAGE = 'bWGR', y, X, it, bi, pi, df, R2)
 }
 
+CNT <- function(X) {
+    invisible(.Call('_bWGR_CNT', PACKAGE = 'bWGR', X))
+}
+
+IMP <- function(X) {
+    invisible(.Call('_bWGR_IMP', PACKAGE = 'bWGR', X))
+}
+
+GAU <- function(X) {
+    .Call('_bWGR_GAU', PACKAGE = 'bWGR', X)
+}
+
+SPC <- function(y, blk, row, col, rN = 3L, cN = 1L) {
+    .Call('_bWGR_SPC', PACKAGE = 'bWGR', y, blk, row, col, rN, cN)
+}
+
