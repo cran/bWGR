@@ -37,8 +37,40 @@ emEN <- function(y, gen, R2 = 0.5, alpha = 0.02) {
     .Call('_bWGR_emEN', PACKAGE = 'bWGR', y, gen, R2, alpha)
 }
 
+BayesA <- function(y, X, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesA', PACKAGE = 'bWGR', y, X, it, bi, df, R2)
+}
+
 BayesB <- function(y, X, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
     .Call('_bWGR_BayesB', PACKAGE = 'bWGR', y, X, it, bi, pi, df, R2)
+}
+
+BayesC <- function(y, X, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesC', PACKAGE = 'bWGR', y, X, it, bi, pi, df, R2)
+}
+
+BayesL <- function(y, X, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesL', PACKAGE = 'bWGR', y, X, it, bi, df, R2)
+}
+
+BayesRR <- function(y, X, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesRR', PACKAGE = 'bWGR', y, X, it, bi, df, R2)
+}
+
+BayesA2 <- function(y, X1, X2, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesA2', PACKAGE = 'bWGR', y, X1, X2, it, bi, df, R2)
+}
+
+BayesB2 <- function(y, X1, X2, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesB2', PACKAGE = 'bWGR', y, X1, X2, it, bi, pi, df, R2)
+}
+
+BayesRR2 <- function(y, X1, X2, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesRR2', PACKAGE = 'bWGR', y, X1, X2, it, bi, df, R2)
+}
+
+emML <- function(y, gen, D = NULL) {
+    .Call('_bWGR_emML', PACKAGE = 'bWGR', y, gen, D)
 }
 
 CNT <- function(X) {
