@@ -547,6 +547,57 @@ SEXP emML(NumericVector y, NumericMatrix gen,
                       Named("Vb")=vb, Named("Ve")=ve);}
 
 // [[Rcpp::export]]
+SEXP emMX(NumericVector y, NumericMatrix gen, double R2=0.5){
+  int maxit = 250;
+  double tol = 10e-8;
+  // Functions starts here
+  int p = gen.ncol();
+  int n = gen.nrow();
+  // Beta, mu and epsilon
+  double b0, eM, ve, mu = mean(y);
+  NumericVector b(p), vb(p), e=y-mu;
+  // Marker variance
+  NumericVector xx(p);
+  for(int k=0; k<p; k++){xx[k] = sum(gen(_,k)*gen(_,k));}
+  NumericVector vx(p);
+  for(int k=0; k<p; k++){vx[k] = var(gen(_,k));}
+  double cxx = sum(vx), mxx = cxx/(R2*R2);
+  NumericVector Lmb = vb+cxx;
+  // Convergence control
+  NumericVector bc(p);
+  int numit = 0;
+  double cnv = 1;
+  // Loop
+  while(numit<maxit){
+    // Regression coefficients loop
+    bc = b+0;
+    for(int j=0; j<p; j++){
+      b0 = b[j];
+      b[j] = (sum(gen(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb[j]);
+      e = e-gen(_,j)*(b[j]-b0);}
+    // Variance components update
+    vb = b*b+ve/(xx+Lmb);
+    ve = sum(e*y)/(n-1);
+    Lmb = ve/vb;
+    Lmb = ifelse(Lmb>mxx,mxx,Lmb);
+    // Intercept update
+    eM = mean(e);
+    mu = mu+eM;
+    e = e-eM;
+    // Convergence
+    ++numit;
+    cnv = sum(abs(bc-b));
+    if( cnv<tol ){break;}}
+  // Fitting the model
+  NumericVector fit(n);
+  for(int k=0; k<n; k++){ fit[k] = sum(gen(k,_)*b)+mu; }
+  double h2 = 1-ve/var(y);
+  // Output
+  return List::create(Named("mu")=mu, Named("b")=b,
+                      Named("hat")=fit, Named("h2")=h2,
+                      Named("Vb")=vb, Named("Ve")=ve);}
+
+// [[Rcpp::export]]
 SEXP emGWA(NumericVector y, NumericMatrix gen){
   int maxit = 500;
   double tol = 10e-8;
@@ -1013,7 +1064,7 @@ SEXP BayesCpi(NumericVector y, NumericMatrix X,
   // Getting GWAS results
   NumericVector PVAL = -log(1-D);
   // Get fitted values and h2
-  vg = VB*MSx; h2 = vg/(vg+VE);
+  vg = VB*MSx/Pi; h2 = vg/(vg+VE);
   for(int k=0; k<n; k++){fit[k] = sum(X(k,_)*B)+MU;}
   // Return output
   return List::create(Named("mu") = MU, Named("b") = B,
@@ -1392,11 +1443,21 @@ NumericMatrix GRM(NumericMatrix X, bool Code012 = false){
   int n = X.nrow(), p = X.ncol();
   NumericMatrix K(n,n); NumericVector xx(p); double zz, Sum2pq=0.0;
   for(int i=0; i<p; i++){ xx[i] = mean(X(_,i)); }
-  if(Code012){for(int i=0; i<p; i++){ Sum2pq = Sum2pq + xx[i]*xx[i]/2;}
-  }else{ for(int i=0; i<p; i++){ Sum2pq = Sum2pq + var(X(_,i));}}
-  for(int i=0; i<n; i++){; for(int j=0; j<n; j++){; if(i<=j ){
-   zz = sum( (X(i,_)-xx(i))*(X(j,_)-xx(j)) );
-   K(i,j)=zz; K(j,i)=zz;}}}; return K/Sum2pq;}
+  if(Code012){
+    for(int i=0; i<p; i++){ Sum2pq = Sum2pq + xx[i]*xx[i]/2;}
+  }else{
+    for(int i=0; i<p; i++){Sum2pq = Sum2pq + var(X(_,i));}
+  }
+  for(int i=0; i<n; i++){
+    for(int j=0; j<n; j++){
+      if(i<=j ){
+        zz = sum( (X(i,_)-xx)*(X(j,_)-xx) );
+        K(i,j)=zz; K(j,i)=zz;
+      }
+    }
+  }
+  return K/Sum2pq;
+}
 
 // [[Rcpp::export]]
 NumericVector SPC(NumericVector y, NumericVector blk, NumericVector row, NumericVector col, int rN=3, int cN=1){

@@ -41,6 +41,10 @@ emML <- function(y, gen, D = NULL) {
     .Call('_bWGR_emML', PACKAGE = 'bWGR', y, gen, D)
 }
 
+emMX <- function(y, gen, R2 = 0.5) {
+    .Call('_bWGR_emMX', PACKAGE = 'bWGR', y, gen, R2)
+}
+
 emGWA <- function(y, gen) {
     .Call('_bWGR_emGWA', PACKAGE = 'bWGR', y, gen)
 }
