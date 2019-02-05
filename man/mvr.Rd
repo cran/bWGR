@@ -1,20 +1,27 @@
-\name{WGR3 (MKR)}
+\name{WGR3 (MVR)}
 \alias{mkr}
+\alias{mrr}
 \alias{Hmat}
 \title{
-Multivariate Kernel Regression
+Multi-variate Regression
 }
 \description{
-Multivariate model to find breeding values through kernel regression.
+Multivariate model to find breeding values.
 }
 \usage{
-mkr(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
-    df=5,R2=0.5,EigT=0.05,verb=FALSE)
+ mkr(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,df=5,R2=0.5,EigT=0.05,verb=FALSE)
+ mrr(Y,X,Choleski=FALSE)    
 }
 \arguments{
   \item{Y}{
 Numeric matrix of observations (\eqn{n,k}) describing the trait to be analyzed. \code{NA} is allowed.
 }
+  \item{X}{
+Numeric matrix containing the genotyping matrix.
+} 
+  \item{Choleski}{
+Use Choleski decomposition to invert genetic covariance.
+} 
   \item{K}{
 Numeric matrix containing the genotypic relationship matrix. A matrix with \eqn{n} rows and columns.
 }
@@ -81,17 +88,21 @@ Y3 = rnorm(196,y,.3)
 Phe = cbind(Y1,Y2,Y3)
 
 # Fit model
-test = mkr(Phe,G)
+test1 = mkr(Phe,G)
+test2 = mrr(Phe,gen,TRUE)
 
 # Genetic correlation
-cov2cor(test$VA)
+cov2cor(test1$VA)
 
 # Environmental correlation
-cov2cor(test$VE)
-
+cov2cor(test1$VE)
+ 
 # Heritabilies
-diag(test$VA/(test$VA+test$VE))
-
+diag(test1$VA/(test1$VA+test1$VE))
+test2$h2
+ 
 # Goodness of fit
-diag(cor(Phe,test$BV))
+diag(cor(Phe,test1$BV))
+diag(cor(Phe,test2$hat))
+ 
 }

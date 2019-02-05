@@ -105,11 +105,15 @@ GRM <- function(X, Code012 = FALSE) {
     .Call('_bWGR_GRM', PACKAGE = 'bWGR', X, Code012)
 }
 
-SPC <- function(y, blk, row, col, rN = 3L, cN = 1L) {
+SPC <- function(y, blk, row, col, rN = 3, cN = 1) {
     .Call('_bWGR_SPC', PACKAGE = 'bWGR', y, blk, row, col, rN, cN)
 }
 
-SPM <- function(blk, row, col, rN = 3L, cN = 1L) {
+SPM <- function(blk, row, col, rN = 3, cN = 1) {
     .Call('_bWGR_SPM', PACKAGE = 'bWGR', blk, row, col, rN, cN)
+}
+
+mrr <- function(Y, X, Choleski = FALSE) {
+    .Call('_bWGR_mrr', PACKAGE = 'bWGR', Y, X, Choleski)
 }
 
