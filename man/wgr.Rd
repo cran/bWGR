@@ -110,7 +110,7 @@ The implementations that support two random effects include:
 
 And the cross-validation for the C++ implementations, with arguments analogous to the emCV function.
     
-Cross-validation: \code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5,avg=TRUE,llo=NULL)}    
+Cross-validation: \code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5,avg=TRUE,llo=NULL,tbv=NULL)}    
     
 }
 \value{
@@ -131,30 +131,42 @@ Legarra, A., & Misztal, I. (2008). Technical note: Computing strategies in genom
 Alencar Xavier
 }
 \examples{
+    \dontrun{
+        
 # Load data
 data(tpod)
 
 # BLUP
-BRR = wgr(y,gen,iv=FALSE,pi=0,it=200,bi=50)
-cor(y,BRR$hat)
+fit_BRR = wgr(y,gen,iv=FALSE,pi=0)
+cor(y,fit_BRR$hat)
 
 # BayesA
-BayesA = wgr(y,gen,iv=TRUE,pi=0,it=200,bi=50)
-cor(y,BayesA$hat)
+fit_BayesA = wgr(y,gen,iv=TRUE,pi=0)
+cor(y,fit_BayesA$hat)
 
 # BayesB
-BayesB = wgr(y,gen,iv=TRUE,pi=.95,it=200,bi=50)
-cor(y,BayesB$hat)
+fit_BayesB = wgr(y,gen,iv=TRUE,pi=.95)
+cor(y,fit_BayesB$hat)
 
 # BayesC
-BayesC = wgr(y,gen,iv=FALSE,pi=.95,it=200,bi=50)
-cor(y,BayesC$hat)
+fit_BayesC = wgr(y,gen,iv=FALSE,pi=.95)
+cor(y,fit_BayesC$hat)
 
+# BayesCpi
+fit_BayesCpi = BayesCpi(y,gen)
+cor(y,fit_BayesCpi$hat)        
+
+# BayesCpi
+fit_BayesDpi = BayesDpi(y,gen)
+cor(y,fit_BayesDpi$hat)        
+        
 # BayesL
-BayesL = wgr(y,gen,de=TRUE,it=200,bi=50)
-cor(y,BayesL$hat)
+fit_BayesL = wgr(y,gen,de=TRUE)
+cor(y,fit_BayesL$hat)
 
 # Bagging BLUP
-Bag = wgr(y,gen,bag=0.5,it=200,bi=50)
-cor(y,Bag$hat)
+fit_Bag = wgr(y,gen,bag=0.5)
+cor(y,fit_Bag$hat)
+    
+    }
 }

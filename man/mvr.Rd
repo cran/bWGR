@@ -2,6 +2,7 @@
 \alias{mkr}
 \alias{mrr}
 \alias{Hmat}
+\alias{SibZ}
 \title{
 Multi-variate Regression
 }
@@ -10,7 +11,7 @@ Multivariate model to find breeding values.
 }
 \usage{
  mkr(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,df=5,R2=0.5,EigT=0.05,verb=FALSE)
- mrr(Y,X,Choleski=FALSE)    
+ mrr(Y,X)    
 }
 \arguments{
   \item{Y}{
@@ -18,9 +19,6 @@ Numeric matrix of observations (\eqn{n,k}) describing the trait to be analyzed. 
 }
   \item{X}{
 Numeric matrix containing the genotyping matrix.
-} 
-  \item{Choleski}{
-Use Choleski decomposition to invert genetic covariance.
 } 
   \item{K}{
 Numeric matrix containing the genotypic relationship matrix. A matrix with \eqn{n} rows and columns.
@@ -76,6 +74,8 @@ Sorensen D., and Gianola D. (2002) Likelihood, Bayesian, and MCMC methods in qua
 Alencar Xavier
 }
 \examples{
+ \dontrun{
+ 
 # G matrix
 data(tpod)
 G = tcrossprod(gen)
@@ -89,7 +89,7 @@ Phe = cbind(Y1,Y2,Y3)
 
 # Fit model
 test1 = mkr(Phe,G)
-test2 = mrr(Phe,gen,TRUE)
+test2 = mrr(Phe,gen)
 
 # Genetic correlation
 cov2cor(test1$VA)
@@ -104,5 +104,6 @@ test2$h2
 # Goodness of fit
 diag(cor(Phe,test1$BV))
 diag(cor(Phe,test2$hat))
- 
+  
+ }
 }

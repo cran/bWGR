@@ -41,10 +41,6 @@ emML <- function(y, gen, D = NULL) {
     .Call('_bWGR_emML', PACKAGE = 'bWGR', y, gen, D)
 }
 
-emMX <- function(y, gen, R2 = 0.5) {
-    .Call('_bWGR_emMX', PACKAGE = 'bWGR', y, gen, R2)
-}
-
 emGWA <- function(y, gen) {
     .Call('_bWGR_emGWA', PACKAGE = 'bWGR', y, gen)
 }
@@ -89,6 +85,10 @@ BayesRR2 <- function(y, X1, X2, it = 1500, bi = 500, df = 5, R2 = 0.5) {
     .Call('_bWGR_BayesRR2', PACKAGE = 'bWGR', y, X1, X2, it, bi, df, R2)
 }
 
+emML2 <- function(y, X1, X2, D1 = NULL, D2 = NULL) {
+    .Call('_bWGR_emML2', PACKAGE = 'bWGR', y, X1, X2, D1, D2)
+}
+
 CNT <- function(X) {
     .Call('_bWGR_CNT', PACKAGE = 'bWGR', X)
 }
@@ -113,7 +113,7 @@ SPM <- function(blk, row, col, rN = 3, cN = 1) {
     .Call('_bWGR_SPM', PACKAGE = 'bWGR', blk, row, col, rN, cN)
 }
 
-mrr <- function(Y, X, Choleski = FALSE) {
-    .Call('_bWGR_mrr', PACKAGE = 'bWGR', Y, X, Choleski)
+mrr <- function(Y, X) {
+    .Call('_bWGR_mrr', PACKAGE = 'bWGR', Y, X)
 }
 

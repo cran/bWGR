@@ -547,57 +547,6 @@ SEXP emML(NumericVector y, NumericMatrix gen,
                       Named("Vb")=vb, Named("Ve")=ve);}
 
 // [[Rcpp::export]]
-SEXP emMX(NumericVector y, NumericMatrix gen, double R2=0.5){
-  int maxit = 250;
-  double tol = 10e-8;
-  // Functions starts here
-  int p = gen.ncol();
-  int n = gen.nrow();
-  // Beta, mu and epsilon
-  double b0, eM, ve, mu = mean(y);
-  NumericVector b(p), vb(p), e=y-mu;
-  // Marker variance
-  NumericVector xx(p);
-  for(int k=0; k<p; k++){xx[k] = sum(gen(_,k)*gen(_,k));}
-  NumericVector vx(p);
-  for(int k=0; k<p; k++){vx[k] = var(gen(_,k));}
-  double cxx = sum(vx), mxx = cxx/(R2*R2);
-  NumericVector Lmb = vb+cxx;
-  // Convergence control
-  NumericVector bc(p);
-  int numit = 0;
-  double cnv = 1;
-  // Loop
-  while(numit<maxit){
-    // Regression coefficients loop
-    bc = b+0;
-    for(int j=0; j<p; j++){
-      b0 = b[j];
-      b[j] = (sum(gen(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb[j]);
-      e = e-gen(_,j)*(b[j]-b0);}
-    // Variance components update
-    vb = b*b+ve/(xx+Lmb);
-    ve = sum(e*y)/(n-1);
-    Lmb = ve/vb;
-    Lmb = ifelse(Lmb>mxx,mxx,Lmb);
-    // Intercept update
-    eM = mean(e);
-    mu = mu+eM;
-    e = e-eM;
-    // Convergence
-    ++numit;
-    cnv = sum(abs(bc-b));
-    if( cnv<tol ){break;}}
-  // Fitting the model
-  NumericVector fit(n);
-  for(int k=0; k<n; k++){ fit[k] = sum(gen(k,_)*b)+mu; }
-  double h2 = 1-ve/var(y);
-  // Output
-  return List::create(Named("mu")=mu, Named("b")=b,
-                      Named("hat")=fit, Named("h2")=h2,
-                      Named("Vb")=vb, Named("Ve")=ve);}
-
-// [[Rcpp::export]]
 SEXP emGWA(NumericVector y, NumericMatrix gen){
   int maxit = 500;
   double tol = 10e-8;
@@ -1412,6 +1361,91 @@ SEXP BayesRR2(NumericVector y, NumericMatrix X1, NumericMatrix X2,
                       Named("ve") = VE, Named("h2") = h2);}
 
 // [[Rcpp::export]]
+SEXP emML2(NumericVector y, NumericMatrix X1, NumericMatrix X2,
+           Rcpp::Nullable<Rcpp::NumericVector> D1 = R_NilValue,
+           Rcpp::Nullable<Rcpp::NumericVector> D2 = R_NilValue){
+  int maxit = 350; double tol = 10e-8;
+  // Functions starts here
+  int p1 = X1.ncol();
+  int p2 = X2.ncol();
+  int n = X1.nrow();
+  // Weights
+  bool P1_WEIGHTS = FALSE;
+  bool P2_WEIGHTS = FALSE;
+  NumericVector d1(p1), d2(p2);
+  if (D1.isNotNull()){P1_WEIGHTS = TRUE; d1=D1;}
+  if (D2.isNotNull()){P2_WEIGHTS = TRUE; d2=D2;}
+  // Beta, mu and epsilon
+  double b0, eM, ve, vb1, vb2, h2, mu = mean(y);
+  NumericVector b1(p1), b2(p2), u1(n), u2(n), cY(n), e = y-mu;
+  // Marker variance
+  NumericVector x1x1(p1), vx1(p1);
+  for(int i=0; i<p1; i++){
+    x1x1[i] = sum(X1(_,i)*X1(_,i));
+    vx1[i] = var(X1(_,i));}
+  double MSx1 = sum(vx1), Lmb1=MSx1;
+  NumericVector x2x2(p2), vx2(p2);
+  for(int i=0; i<p2; i++){
+    x2x2[i] = sum(X2(_,i)*X2(_,i));
+    vx2[i] = var(X2(_,i));}
+  double MSx2 = sum(vx2), Lmb2=MSx2;
+  // Convergence control
+  NumericVector bc1(p1), bc2(p2);
+  int numit = 0;
+  double cnv = 1;
+  // Loop
+  while(numit<maxit){
+    // Save b(t0)
+    bc1 = b1+0;
+    bc2 = b2+0;
+    // Regression coefficients loop 1
+    for(int j=0; j<p1; j++){
+      b0 = b1[j];
+      if(P1_WEIGHTS){
+        b1[j] = (sum(X1(_,j)*e)+x1x1[j]*b0)/(x1x1[j]+Lmb1/d1[j]);
+      }else{
+        b1[j] = (sum(X1(_,j)*e)+x1x1[j]*b0)/(x1x1[j]+Lmb1);}
+      e = e-X1(_,j)*(b1[j]-b0);}
+    // Regression coefficients loop 2
+    for(int j=0; j<p2; j++){
+      b0 = b2[j];
+      if(P2_WEIGHTS){
+        b2[j] = (sum(X2(_,j)*e)+x2x2[j]*b0)/(x2x2[j]+Lmb2/d2[j]);
+      }else{
+        b2[j] = (sum(X2(_,j)*e)+x2x2[j]*b0)/(x2x2[j]+Lmb2);}
+      e = e-X2(_,j)*(b2[j]-b0);}
+    // Fitting the model
+    for(int k=0; k<n; k++){
+      u1[k] = sum(X1(k,_)*b1);
+      u2[k] = sum(X2(k,_)*b2);
+    }
+    // Intercept update
+    eM = mean(e);
+    mu = mu+eM;
+    e = e-eM;
+    // Variance components update
+    cY = u1+u2+e;
+    ve = sum(e*cY)/n;
+    vb1 = (sum(u1*cY)/n)/MSx1;
+    vb2 = (sum(u2*cY)/n)/MSx2;
+    Lmb1 = ve/vb1;
+    Lmb2 = ve/vb2;
+    // Convergence
+    ++numit;
+    cnv = sum(abs(bc1-b1))+sum(abs(bc2-b2));
+    if( cnv<tol ){break;}}
+  // Fitting the model
+  NumericVector fit = mu+u1+u2;
+  h2 = 1-ve/var(y);
+  // Output
+  return List::create(Named("mu")=mu,
+                      Named("b1")=b1, Named("b2")=b2, 
+                      Named("Vb1")=vb1, Named("Vb2")=vb2, Named("Ve")=ve,
+                            Named("u1")=u1, Named("u2")=u2,
+                            Named("MSx1")=MSx1, Named("MSx2")=MSx2,
+                            Named("h2")=h2, Named("hat")=fit);}
+
+// [[Rcpp::export]]
 NumericMatrix CNT(NumericMatrix X){for(int j=0;j<X.ncol();j++){X(_,j)=X(_,j)-mean(X(_,j));}; return(X);}
 
 // [[Rcpp::export]]
@@ -1470,32 +1504,29 @@ NumericMatrix SPM(NumericVector blk, NumericVector row, NumericVector col, doubl
         X(i,j) = 1; X(j,i) = 1; }else{ X(i,j) = 0; X(j,i) = 0; }}; X(i,i) = 0;}; return X;}
 
 // [[Rcpp::export]]
-SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski = false){  
+SEXP mrr(NumericMatrix Y, NumericMatrix X){
   // Convergence parameters
-  int maxit = 350;
-  double tol = 10e-8;  
+  int maxit = 200; double tol = 10e-8;
   // Obtain environment containing function
   Rcpp::Environment base("package:base");
   Rcpp::Function solve = base["solve"];
-  Rcpp::Function chol2inv = base["chol2inv"];  
   // Functions starts here
-  int k = Y.ncol(), p = X.ncol(), n0 = X.nrow();  
-  // Handle missings Y's
+  int k = Y.ncol(), p = X.ncol(), n0 = X.nrow();
   NumericMatrix fit(n0,k),o(n0,k),y(n0,k),e(n0,k);
   for(int i=0; i<k; i++){
     o(_,i) = ifelse(is_na(Y(_,i)),0,1);
     y(_,i) = ifelse(is_na(Y(_,i)),0,Y(_,i));}
-  NumericVector n = colSums(o);  
+  NumericVector n = colSums(o);
   // Marker variance
   NumericMatrix xx(p,k), vx(p,k);
   double tmp;
   for(int i=0; i<p; i++){
     for(int j=0; j<k; j++){
-      xx(i,j) = sum(X(_,i)*X(_,i)*o(_,j));
+     xx(i,j) = sum(X(_,i)*X(_,i)*o(_,j));
       tmp = sum(X(_,i)*o(_,j))/n(j);
-      vx(i,j) = xx(i,j)/n(j)-tmp*tmp;}}  
+      vx(i,j) = xx(i,j)/n(j)-tmp*tmp;}}
   //NumericVector MSx = colSums(xx);
-  NumericVector MSx = colSums(vx);  
+  NumericVector MSx = colSums(vx);
   // Beta, intersept and residuals
   NumericMatrix b(p,k),vb(k,k),iG(k,k),rho(k,k),LHS(k,k);
   NumericVector b0(k),b1(k),eM(k),mu(k),vy(k),ve(k),RHS(k);
@@ -1507,13 +1538,13 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski = false){
     ve(i) = vy(i)*0.5;
     vb(i,i) = ve(i)/MSx(i);
     rho(i,i) = 1;}
-  iG = solve(vb);  
+  iG = solve(vb);
   // Convergence control
   NumericMatrix bc(p,k);
   int numit = 0;
-  double cnv = 1;  
+  double cnv = 1;
   // Loop
-  while(numit<maxit){    
+  while(numit<maxit){
     // Gauss-Seidel loop
     bc = b+0;
     for(int j=0; j<p; j++){
@@ -1527,46 +1558,27 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski = false){
       b(j,_) = b1;
       // Update residuals
       for(int i=0; i<k; i++){
-        e(_,i) = (e(_,i)-X(_,j)*(b1(i)-b0(i)))*o(_,i);}}    
+        e(_,i) = (e(_,i)-X(_,j)*(b1(i)-b0(i)))*o(_,i);}}
     // Intercept update
     eM = colSums(e)/n;
     mu = mu+eM;
-    for(int j=0; j<k; j++){e(_,j) = (e(_,j)-eM(j))*o(_,j);}    
+    for(int j=0; j<k; j++){e(_,j) = (e(_,j)-eM(j))*o(_,j);}
     // Variance components update
-    for(int i=0; i<k; i++){
-      ve(i) = sum(e(_,i)*y(_,i))/(n(i)-1);
-      if(Choleski){
-        vb(i,i) = (1.1*vy(i)-ve(i))/MSx(i);
-      }else{ vb(i,i) = (vy(i)-ve(i))/MSx(i);}}    
-    // Approximate genetic correlation
-    for(int i=0; i<n0; i++){ 
-      for(int j=0; j<k; j++){
-        fit(i,j) = sum(X(i,_)*b(_,j));}}
-    for(int i=0; i<k; i++){ 
-      for(int j=0; j<k; j++){
-        rho(i,j) = sum(fit(_,i)*fit(_,j))/sqrt(sum(fit(_,i)*fit(_,i))*sum(fit(_,j)*fit(_,j)));
-      }}    
-    // Covariance components
-    for(int i=0; i<k; i++){
-      for(int j=0; j<k; j++){
-        if(i>j){
-          vb(i,j) = rho(i,j)*sqrt(vb(i,i)*vb(j,j));
-          vb(j,i) = vb(i,j); }}}
-    for(int i=0; i<k; i++){vb(i,i)=vb(i,i)*1.01;}
-    if(Choleski){iG = chol2inv(vb);}else{iG = solve(vb);}    
+    for(int i=0; i<k; i++){ ve(i) = sum(e(_,i)*y(_,i))/(n(i)-1);}
+    for(int i=0; i<n0; i++){ for(int j=0; j<k; j++){ fit(i,j) = sum(X(i,_)*b(_,j));}}
+    for(int i=0; i<k; i++){ for(int j=0; j<k; j++){
+      vb(i,j) = (sum(fit(_,i)*y(_,j))+sum(fit(_,j)*y(_,i))) / ((n(i)*MSx(i))+(n(j)*MSx(j))) ;}}
+    for(int i=0; i<k; i++){vb(i,i)=vb(i,i)*1.01;} // Ridging
+    iG = solve(vb);
     // Convergence
     ++numit;
     cnv = sum(abs(bc-b));
-    if( cnv<tol ){break;}}  
+    if( cnv<tol ){break;}}
   // Fitting the model
-  for(int i=0; i<n0; i++){ 
-    for(int j=0; j<k; j++){
-      fit(i,j) = sum(X(i,_)*b(_,j))+mu(j);}}  
-  // Heritability
   NumericVector h2(k); 
-  for(int i=0; i<k; i++){ h2 = (vb(i,i)*MSx(i))/((vb(i,i)*MSx(i))+ve); }  
+  for(int i=0; i<n0; i++){for(int j=0; j<k; j++){fit(i,j) = sum(X(i,_)*b(_,j))+mu(j);}}
+  for(int i=0; i<k; i++){ h2 = (vb(i,i)*MSx(i))/((vb(i,i)*MSx(i))+ve); }
   // Output
   return List::create(Named("mu")=mu, Named("b")=b,
                       Named("hat")=fit, Named("h2")=h2,
-                      Named("Vb")=vb, Named("Ve")=ve,
-                      Named("MSx")=MSx);}
+                      Named("Vb")=vb, Named("Ve")=ve);}
