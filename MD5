@@ -1,6 +1,6 @@
-f7afc6687decb0100c785052912481c9 *DESCRIPTION
+461285c0ddd90fe5654f6cb5a0980a8c *DESCRIPTION
 dde1a6f7fb7a608825f4c6aa25bba0c3 *NAMESPACE
-f815467a2ba8744e50620cfafc1c9ebe *R/RcppExports.R
+cb031fbf6deb98d62ce1029c890c3cc2 *R/RcppExports.R
 4478257c3c4f921b88b769311f71a166 *R/cv.R
 d89ce345dd2d838bf1e3f2074b40fb71 *R/mix.R
 e8c48f7e24ac2e49daf9fced051abf85 *R/mkr.R
@@ -9,12 +9,12 @@ fa62482a6dd4017826df681b3c2ffa03 *data/tpod.RData
 8c128a5f0d4c03eb1b9d603ffd22d014 *demo/00Index
 063837529a1d198b679b0e388d57a068 *demo/mixedmodel.R
 a33fda4b4f4eaeb9ca97988d02aa6a6c *inst/CITATION
-5a6734db06df1abda915dbe92b415607 *man/bWGR.Rd
+cc83d83d395303a4ae209cc110c3fe6d *man/bWGR.Rd
 c09deb016970dced256cd8fbdeb1e169 *man/em.Rd
 bd9886d83dfb267fc2d73dd4eb7a6d58 *man/mix.Rd
-ce31025e60a6d21a28328652d9e442c6 *man/mvr.Rd
+3af42487674e6c2a983419ccebd516d2 *man/mvr.Rd
 eb5d456ef094d182586e7b0980ce7847 *man/tpod.Rd
 f1e873f7b636ba075f0595213bafd066 *man/wgr.Rd
 8502a5a68ef613bac0611c8c78cdec00 *src/RcppExports.cpp
 7c22b1b500cab25872924e218f1645f5 *src/RegisteringDynamic.c
-fded325a32e8429166a5f8c942e54ca1 *src/wgr20190212.cpp
+f334492aaea458e9a73e0086ba1e86b8 *src/wgr20190212.cpp
