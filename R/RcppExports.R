@@ -117,3 +117,15 @@ mrr <- function(Y, X) {
     .Call('_bWGR_mrr', PACKAGE = 'bWGR', Y, X)
 }
 
+mrrV2 <- function(Y, X) {
+    .Call('_bWGR_mrrV2', PACKAGE = 'bWGR', Y, X)
+}
+
+mrr2X <- function(Y, X1, X2) {
+    .Call('_bWGR_mrr2X', PACKAGE = 'bWGR', Y, X1, X2)
+}
+
+mtgsru <- function(Y, X, b, vb, ve, iG, maxit = 50L) {
+    .Call('_bWGR_mtgsru', PACKAGE = 'bWGR', Y, X, b, vb, ve, iG, maxit)
+}
+

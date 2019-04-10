@@ -1,6 +1,8 @@
 \name{WGR3 (MVR)}
 \alias{mkr}
 \alias{mrr}
+\alias{mrrV2}
+\alias{mrr2X}
 \alias{Hmat}
 \alias{SibZ}
 \title{
@@ -11,7 +13,7 @@ Multivariate model to find breeding values.
 }
 \usage{
  mkr(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,df=5,R2=0.5,EigT=0.05,verb=FALSE)
- mrr(Y,X)    
+ mrr(Y,X)
 }
 \arguments{
   \item{Y}{
@@ -60,7 +62,7 @@ The model for the ridge regression (mrr) is as follows:
 
 \eqn{Y = Mu + XA + E},
 
-where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{A} is the matrix of marker effects (each column \eqn{a} is the effect for a trait),  and \eqn{E} is the residual matrix. Covariance components updated from the conditional expectation, and regression coefficients are solved via a multivaraite adapration of Gauss-Seidel Residual Update. Residuals are assumed to be independent among traits.
+where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{A} is the matrix of marker effects (each column \eqn{a} is the effect for a trait),  and \eqn{E} is the residual matrix. Covariance components updated from the conditional expectation, and regression coefficients are solved via a multivaraite adapration of Gauss-Seidel Residual Update. Residuals are assumed to be independent among traits. Try \code{mrrV2} in the case mrr returns an error, as mrrV2 is more stable but less accurate implementation.
  
 }
 \value{
