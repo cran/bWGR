@@ -1812,7 +1812,7 @@ SEXP mtgsru(NumericMatrix Y, NumericMatrix X,
   NumericVector b0(k),b1(k),vy(k),RHS(k);
   
   for(int i=0; i<k; i++){ e(_,i) = y(_,i)+0;
-    vy(i) = sum(e(_,i)*e(_,i))/n(i); ve(i) = vy(i)*0.5;}
+    vy(i) = sum(e(_,i)*e(_,i))/n(i); }
   iG = solve(vb); NumericMatrix bc(p,k);
   
   int numit = 0; double cnv = 1; while(numit<maxit){
@@ -1826,6 +1826,7 @@ SEXP mtgsru(NumericMatrix Y, NumericMatrix X,
     for(int i=0; i<n0; i++){ for(int j=0; j<k; j++){fit(i,j) = sum(X(i,_)*b(_,j));}}
     for(int i=0; i<k; i++){ for(int j=0; j<k; j++){
       vb(i,j) = (sum(fit(_,i)*y(_,j))+sum(fit(_,j)*y(_,i))) / ((n(i)*MSx(i))+(n(j)*MSx(j))); }}
+    for(int i=0; i<k; i++){vb(i,i) = vb(i,i)*1.01;}
     iG = solve(vb); ++numit; cnv = sum(abs(bc-b)); if( cnv<tol ){break;}}
   for(int i=0; i<n0; i++){for(int j=0; j<k; j++){fit(i,j) = sum(X(i,_)*b(_,j));}}
   
