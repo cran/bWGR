@@ -121,6 +121,10 @@ mrrV2 <- function(Y, X) {
     .Call('_bWGR_mrrV2', PACKAGE = 'bWGR', Y, X)
 }
 
+mrrV3 <- function(Y, X) {
+    .Call('_bWGR_mrrV3', PACKAGE = 'bWGR', Y, X)
+}
+
 mrr2X <- function(Y, X1, X2) {
     .Call('_bWGR_mrr2X', PACKAGE = 'bWGR', Y, X1, X2)
 }
