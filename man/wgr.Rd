@@ -18,7 +18,7 @@
 MCMC Whole-genome Regression
 }
 \description{
-Univariate model to find breeding values through regression with optional resampling techniques (SBMC) and polygenic term (Kernel). Additional standalone functions written entirely in C++ are also implemented.
+Univariate model to find breeding values through regression with optional resampling techniques (Xavier et al. 2017) and polygenic term (Kernel). See "Details" for additional standalone functions written in C++.
 }
 \usage{
 wgr(y,X,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,de=FALSE,
@@ -42,7 +42,7 @@ Integer. Burn-in, the number of iterations or samples to be discarted.
 Integer. Thinning parameter, used to save memory by storing only one every 'th' samples.
 }
   \item{bag}{
-If different than one, it indicates the proportion of data to be subsampled in each Markov chain. For datasets with moderate number of observations, values of bag from 0.30 to 0.60 may speed up computation without losses in predicion properties. This argument enable users to enhance MCMC through Subsampling bootstrap Markov chain (SBMC).
+If different than one, it indicates the proportion of data to be subsampled in each Markov chain. For datasets with moderate number of observations, values of bag from 0.30 to 0.60 may speed up computation without losses in predicion properties. This argument enable users to enhance MCMC through subsampling (Xavier et al. 2017).
 }
   \item{rp}{
 Logical. Use replacement for bootstrap samples when bag is different than one.
@@ -63,10 +63,10 @@ Prior degrees of freedom of variance components.
 Expected R2, used to calculate the prior shape.
 }
   \item{eigK}{
-Output of function 'eigen'. Spectral decomposition of the kernel used to compute the polygenic term.
+Output of function \code{eigen}. Spectral decomposition of the kernel used as a second random effect (eg. pedigree matrix).
 }
   \item{VarK}{
-Numeric between 0 and 1. For reduction of dimensionality. Indicates the proportion of variance explained by Eigenpairs used to fit the polygenic term.
+Numeric between 0 and 1. For reduction of dimensionality. Indicates the proportion of variance explained by Eigenpairs used to fit second random effect.
 }
   \item{verb}{
 Logical. If verbose is TRUE, function displays MCMC progress bar.
@@ -108,9 +108,9 @@ The implementations that support two random effects include:
 
 10) \code{BayesRR2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
 
-And the cross-validation for the C++ implementations, with arguments analogous to the emCV function.
+And the cross-validation for the C++ implementations, with arguments analogous to \code{emCV}.
     
-Cross-validation: \code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5,avg=TRUE,llo=NULL,tbv=NULL)}    
+\code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5,avg=T,llo=NULL,tbv=NULL)}    
     
 }
 \value{
@@ -125,6 +125,8 @@ de los Campos, G., Gianola, D., Rosa, G. J., Weigel, K. A., & Crossa, J. (2010).
 Kuo, L., & Mallick, B. (1998). Variable selection for regression models. Sankhya: The Indian Journal of Statistics, Series B, 65-81.
 
 Legarra, A., & Misztal, I. (2008). Technical note: Computing strategies in genome-wide selection. Journal of dairy science, 91(1), 360-366.
+
+Xavier, A., Xu, S., Muir, W., & Rainey, K. M. (2017). Genomic prediction using subsampling. BMC bioinformatics, 18(1), 191.
 
 }
 \author{
@@ -152,11 +154,11 @@ cor(y,fit_BayesB$hat)
 fit_BayesC = wgr(y,gen,iv=FALSE,pi=.95)
 cor(y,fit_BayesC$hat)
 
-# BayesDpi
+# BayesCpi
 fit_BayesCpi = BayesCpi(y,gen)
 cor(y,fit_BayesCpi$hat)        
 
-# BayesCpi
+# BayesDpi
 fit_BayesDpi = BayesDpi(y,gen)
 cor(y,fit_BayesDpi$hat)        
         

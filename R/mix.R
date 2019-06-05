@@ -136,10 +136,10 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
       }
       
       # VarComp & Lambda
-      Error = mean(yc*e,na.rm=T)
+      Error = var(e,na.rm=T)
       SSa = sapply(H, function(h) mean(yc*h,na.rm=T) )
       Vg = c(SSa,Error=Error)
-      Vg[Vg<(0.01*Vy)] = 0.01*Vy
+      Vg[Vg<(0.001*Vy)] = 0.001*Vy
       Va = Vg[rnd]
       Ve = Vg['Error']
       LMB = Ve/Va; names(LMB) = names(Va)
@@ -147,7 +147,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
     
     # Print R2 and check convergence based on Ve
     setTxtProgressBar(pb,iter/maxit)
-    R2 = round(1-Ve/Vy,6)
+    R2 = round(1-Ve/Vy,8)
     if(abs(R2c-R2)==0) break()
     R2c = R2
   }
