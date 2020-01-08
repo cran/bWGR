@@ -21,16 +21,16 @@ emBC <- function(y, gen, df = 10, R2 = 0.5, Pi = 0.75) {
     .Call('_bWGR_emBC', PACKAGE = 'bWGR', y, gen, df, R2, Pi)
 }
 
+emDE <- function(y, gen, R2 = 0.5) {
+    .Call('_bWGR_emDE', PACKAGE = 'bWGR', y, gen, R2)
+}
+
 emRR <- function(y, gen, df = 10, R2 = 0.5) {
     .Call('_bWGR_emRR', PACKAGE = 'bWGR', y, gen, df, R2)
 }
 
 emBL <- function(y, gen, R2 = 0.5, alpha = 0.02) {
     .Call('_bWGR_emBL', PACKAGE = 'bWGR', y, gen, R2, alpha)
-}
-
-emDE <- function(y, gen, R2 = 0.5) {
-    .Call('_bWGR_emDE', PACKAGE = 'bWGR', y, gen, R2)
 }
 
 emEN <- function(y, gen, R2 = 0.5, alpha = 0.02) {
@@ -135,5 +135,9 @@ mkr <- function(Y, K) {
 
 mkr2X <- function(Y, K1, K2) {
     .Call('_bWGR_mkr2X', PACKAGE = 'bWGR', Y, K1, K2)
+}
+
+mrrFast <- function(Y, X) {
+    .Call('_bWGR_mrrFast', PACKAGE = 'bWGR', Y, X)
 }
 
