@@ -600,7 +600,7 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
       # Add a value for missing ids
       M_SVD[[i]]$u = rbind(M_SVD[[i]]$u,miss=0)
       # Scale eigenvectors based on their eigenvalues
-      M_SVD[[i]]$u = M_SVD[[i]]$u %*% diag(M_SVD[[i]]$d[1:nPc])
+      M_SVD[[i]]$u = M_SVD[[i]]$u %*% diag(M_SVD[[i]]$d)
       tmp_ids = as.character(data[[i]])
       tmp_ids[ ! tmp_ids%in%rownames(M[[i]]) ] = 'miss'
       Zpc[[i]] = M_SVD[[i]]$u[tmp_ids,]
