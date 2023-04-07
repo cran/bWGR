@@ -2,14 +2,13 @@
 \alias{mixed}
 \alias{mtmixed}
 \alias{mtgsru}
-
 \alias{mm}
 \alias{NNS}
 \alias{GSFLM}
 \alias{GSRR}
 \alias{GS2EIGEN}
 \alias{NNSEARCH}
-
+\alias{predict_FLMSS}
 
 \title{
 Mixed model solver
