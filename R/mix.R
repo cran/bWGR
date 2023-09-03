@@ -1113,5 +1113,63 @@ predict_FLMSS = function(x, data=NULL, M=NULL){
   return(prd)
 }
 
+#############################################################################################################                   
+
+SEM = function(Y,Z,PCs=3,TOI=NULL,Beta0=NULL){
+  k = ncol(Y)
+  Mu = colMeans(Y,na.rm=T)
+  NamesY0 = colnames(Y)
+  toinames = NamesY0[TOI]
+  cat('Step 1 - UV\n')
+  if(is.null(Beta0)){
+    cat('  |')
+    Beta0 = sapply(1:k,function(i){
+      y = Y[,i]
+      w = which(!is.na(y))
+      yy = y[w]
+      xx = Z[w,]
+      beta = MRR3(matrix(yy),xx)
+      if((100*i/k)%%10==0) cat('===')
+      return( c(beta$b) )})
+    cat('|\n')
+  }else{ cat('Skip step1\n') }
+  rownames(Beta0) = colnames(Z)
+  colnames(Beta0) = NamesY0
+  cat('Step 2 - SVD G\n')
+  G = Z %*% Beta0; 
+  E = (EigenBDCSVD( G )$V)[,1:min(PCs,ncol(Y))]
+  cat('Step 3 - SEM\n')
+  k = ncol(Y)
+  if(is.null(TOI)){ toi = 1:k  }else{ toi = TOI } 
+  cat('  |')
+  MvBeta = sapply(toi,function(i){
+    if( (100*which(toi==i)/length(toi))  %% 10  ==0 ) cat('===')
+    y = Y[,i]
+    w = which(!is.na(y))
+    yy = y[w]
+    xx = Z[w,]
+    X = cbind(1,G[w,] %*% E)
+    beta = MLM(matrix(yy),X,xx,verb=F)
+    betaf = c( Beta0 %*% E %*% beta$b[-1,] ) + c(beta$u)
+    return(betaf)})
+  cat('|\n')
+  # VC
+  G = Z %*% MvBeta
+  if(!is.null(TOI)){
+    Yc = apply(Y[,toi],2,function(x)x-mean(x,na.rm=T))
+    pa = cor(G,Y[,toi],use='p'); GC = 0.5*(pa+t(pa))
+    for(i in 1:ncol(G)) G[,i]=G[,i]+Mu[i]
+    h2 = 1-c(colMeans((Y[,toi]-G)*Yc,na.rm=T))/apply(Y[,toi],2,var,na.rm=T)
+  }else{
+    Yc = apply(Y,2,function(x)x-mean(x,na.rm=T))
+    pa = cor(G,Y,use='p'); GC = 0.5*(pa+t(pa))
+    for(i in 1:ncol(G)) G[,i]=G[,i]+Mu[i]
+    h2 = 1-c(colMeans((Y-G)*Yc,na.rm=T))/apply(Y,2,var,na.rm=T)}
+  
+  rownames(MvBeta) = colnames(Z)
+  if(is.null(TOI)){ colnames(MvBeta) = colnames(Y)  }else{ colnames(MvBeta) = colnames(Y)[TOI] } 
+  out = list(Univ=Beta0,SEM=MvBeta,Mu=Mu)
+  out = list(mu=Mu,b=MvBeta,GC=GC,hat=G,h2=h2)
+  return(out)}
 
    

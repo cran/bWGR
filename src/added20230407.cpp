@@ -5,8 +5,8 @@
 #include <random>
 
 // [[Rcpp::export]]
-Eigen::MatrixXd EigenArcZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, int cores = 2){
-  Eigen::setNbThreads(cores);  
+Eigen::MatrixXd EigenArcZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, int cores = 1){
+  if(cores!=1) Eigen::setNbThreads(cores);  
   int p = Zfndr.cols(), nf = Zfndr.rows(), ns = Zsamp.rows();
   // Centralize matrices to create relationship matrix
   Eigen::VectorXd MeanColumnZfndr = Zfndr.colwise().mean();
@@ -38,8 +38,8 @@ Eigen::MatrixXd EigenArcZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, int cor
 }
 
 // [[Rcpp::export]]
-Eigen::MatrixXd EigenGauZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, double phi = 1.0, int cores = 2){
-  Eigen::setNbThreads(cores);  
+Eigen::MatrixXd EigenGauZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, double phi = 1.0, int cores = 1){
+  if(cores!=1) Eigen::setNbThreads(cores);  
   int p = Zfndr.cols(), nf = Zfndr.rows(), ns = Zsamp.rows();
   // Centralize matrices to create relationship matrix
   Eigen::MatrixXd Kff = Zfndr * Zfndr.transpose();
@@ -70,9 +70,11 @@ Eigen::MatrixXd EigenGauZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, double 
 }
 
 // [[Rcpp::export]]
-Eigen::MatrixXd K2X(Eigen::MatrixXd K){
+Eigen::MatrixXd K2X(Eigen::MatrixXd K, int cores = 1){
+  if(cores!=1) Eigen::setNbThreads(cores);
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(K);
-  return es.eigenvectors() * es.eigenvalues().array().sqrt().matrix().asDiagonal();
+  Eigen::BDCSVD<Eigen::MatrixXd> svd(K, Eigen::ComputeThinU | Eigen::ComputeThinV );
+  return svd.matrixU() * svd.singularValues().matrix().asDiagonal();
 }
 
 Eigen::MatrixXd GetL(Eigen::MatrixXd A){
@@ -195,7 +197,7 @@ SEXP MvSimY(
 
 // [[Rcpp::export]]
 SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
-         int maxit = 500, double logtol = -8, int cores = 1){
+         int maxit = 500, double logtol = -8, int cores = 1, bool verb = false){
   
   // Basic info
   double df0 = 1.1; 
@@ -320,10 +322,12 @@ SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
     // Print status
     ++numit;
     cnv = log10((beta0.array()-b.array()).square().sum());
-    if( std::isnan(cnv) ){Rcpp::Rcout << "Numerical issue! Job aborted (it=" << numit << ")\n"; break;}
-    if( numit % 100 == 0 ){ Rcpp::Rcout << "Iter: "<< numit << " || log10 Conv: "<< cnv << "\n"; } 
-    if(  cnv<logtol ){ Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n"; break; }
-    if( numit == maxit ){ Rcpp::Rcout << "Model did not converge\n"; }
+    
+    if(verb){
+      if( std::isnan(cnv) ){Rcpp::Rcout << "Numerical issue! Job aborted (it=" << numit << ")\n"; break;}
+      if( numit % 100 == 0 ){ Rcpp::Rcout << "Iter: "<< numit << " || log10 Conv: "<< cnv << "\n"; } 
+      if(  cnv<logtol ){ Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n"; break; }
+      if( numit == maxit ){ Rcpp::Rcout << "Model did not converge\n";}}else if( std::isnan(cnv) ){ break;}
     
   }
   
