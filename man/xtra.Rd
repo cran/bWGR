@@ -23,6 +23,7 @@
 \alias{K2X}
 \alias{SimY}
 \alias{SimZ}
+\alias{SimGC}
 \alias{MvSimY}
 
 \title{
@@ -78,11 +79,13 @@ Complementary functions that may help with handling parameters and routine opera
 
 \code{K2X(K)} # Reparametrize kernel to PCs to run regression models 
 
-\code{SimY(Z,k=5,h2=0.5,GC=0.5,seed=123,unbalanced=FALSE)} # Simulate Y for multiple environments
+\code{SimY(Z,k=5,h2=0.5,GC=0.5,seed=123,unbalanced=FALSE,PercMiss=0,BlkMiss=FALSE)} # Simulate phenotypes 
 
-\code{SimZ(ind=1000,snp=500,rec=0.01)} # Simulate haplotypes to create a Z matrix
+\code{SimZ(ind=500,snp=500,chr=2,F2=TRUE,rec=0.01)} # Simulate genome
 
-\code{MvSimY(Ufndr,Zfndr,Zsamp,GxY,GxL,H2plot,nLoc=20,Seed=123)} # Simulate traits given founders
+\code{SimGC(k=50,...)} # Simulate genetic correlation matrix
+
+\code{MvSimY(Ufndr,Zfndr,Zsamp,GxY,GxL,H2plot,nLoc=20,Seed=123)} # Simulate phenotypes given founders
 
 }
 \author{

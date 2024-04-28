@@ -415,7 +415,8 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=10, init
 
 #############################################################################################################                   
 
-SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123, unbalanced=FALSE, PercMiss=0){
+SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123, 
+                unbalanced=FALSE, PercMiss=0, BlkMiss=FALSE){
   
   # Store inputs
   trueVal = list(h2=h2,GC=GC,seed=seed)
@@ -451,6 +452,7 @@ SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123, unbalanced=FALSE, PercMiss=0)
   trueVal['scaleG'] = alpha
   Vb = G0*alpha
   ev = eigen(Vb, symmetric = TRUE)
+  ev$values = ifelse(ev$values<0.0001,0.0001,ev$values)
   UD = ev$vectors %*% diag(sqrt(ev$values))
   beta = matrix(rnorm(p * k), nrow = p)
   trueBeta = UD %*% t(beta)
@@ -472,7 +474,15 @@ SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123, unbalanced=FALSE, PercMiss=0)
   
   # Percentage missing
   if(PercMiss>0){
-    Y[sample(length(Y),length(Y)*PercMiss)] = NA
+    if(BlkMiss){
+      Ym = matrix(F,10,10)
+      col_index = sort(rep(1:10,length.out=ncol(Y)))
+      row_index = sort(rep(1:10,length.out=nrow(Y)))
+      Ym[sample(100,100*PercMiss)] = T
+      for(i in 1:10) for(j in 1:10) if(!Ym[i,j]) Y[which(row_index==i),which(col_index==j)] = NA
+    }else{
+      Y[sample(length(Y),length(Y)*PercMiss)] = NA
+    }
   }
   
   # Output
@@ -482,15 +492,66 @@ SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123, unbalanced=FALSE, PercMiss=0)
 
 #############################################################################################################                   
 
-SimZ = function(ind = 1000, snp = 500, rec = 0.01){
-  Z = sapply(1:ind,function(a){
-    z = c(F,sample(c(T,F),snp-1,T,c(rec,1-rec))); recs = which(z);
-    for(i in recs){z[i:snp]=(!z[i-1])};
-    z = z*sample(c(T,F),1); if(runif(1)>0.5){ z = !z};
-    return(z)}); return(t(Z))}
+SimZ = function(ind = 500, snp = 500, chr=2, F2=TRUE, rec = 0.01){
+  # ind = 500; snp = 500; chr=2; F2=TRUE; rec = 0.01
+  makeZ = function(...){
+    Z = sapply(1:ind,function(a){
+      z = c(F,sample(c(T,F),snp-1,T,c(rec,1-rec))); recs = which(z);
+      for(i in recs){z[i:snp]=(!z[i-1])};
+      z = z*sample(c(T,F),1); if(runif(1)>0.5){ z = !z};
+      return(z)}); Z = t(Z); return(Z)}
+  makeZF2 = function(...){ makeZ()+makeZ()  }
+  if(F2){
+    Z = do.call(cbind,lapply(1:chr,makeZF2)) }else{
+    Z = do.call(cbind,lapply(1:chr,makeZ)) } 
+  return(Z)}
              
 #############################################################################################################                   
 
+SimGC = function(k=50, MIX=TRUE,
+                 BLK_UNS=FALSE,BLK=FALSE,
+                 GRAD_UNS=FALSE,GRAD=FALSE,
+                 BLK_GRAD=FALSE){
+  kk = round(sqrt(k))
+  k0 = ceiling(sqrt(k))
+  k00 = floor(sqrt(k))
+  if(MIX){
+    GC0 = (exp(-as.matrix(dist(1:k0,method = 'man')/(0.5*k0) ))-0.5)*2
+    GC = kronecker(GC0,matrix(1,k0,k0))[1:k,1:k]
+    GC = GC + 0.5*(1-as.matrix(dist(matrix(runif(k*kk),k,kk ))))
+    GC = cov2cor(GC)
+    diag(GC)=1; GC = cov2cor(GC)
+  }else if(BLK_GRAD){
+    GC0 = (exp(-as.matrix(dist(1:k0,method = 'man')/(0.5*k0) ))-0.5)*2
+    GC = kronecker(GC0,matrix(1,k0,k0))[1:k,1:k]*0.75
+    diag(GC)=1; GC = cov2cor(GC)
+  }else if(BLK_UNS){
+    GC0 = 1-as.matrix(dist(matrix(runif(k0*k00),k0,k00)))
+    GC = kronecker(GC0,matrix(1,k0,k0))[1:k,1:k]
+    GC = GC + (1-as.matrix(dist(matrix(runif(k*kk),k,kk ))))
+    GC = cov2cor(GC)
+  }else if(BLK){
+    GC0 = 1-as.matrix(dist(matrix(runif(k0*k00),k0,k00)))
+    GC = kronecker(GC0,matrix(1,k0,k0))[1:k,1:k]*0.75
+    diag(GC)=1; GC = cov2cor(GC)
+  }else if(GRAD_UNS){
+    GC = (exp(-as.matrix(dist(1:k,method = 'man')/(0.5*k) ))-0.5)*2
+    GC = 0.5*(GC+1-as.matrix(dist(matrix(runif(k*kk),k,kk))))
+  }else if(GRAD){
+    GC = (exp(-as.matrix(dist(1:k,method = 'man')/(0.5*k) ))-0.5)*2
+  }else{
+    GC = 1-as.matrix(dist(matrix(runif(k*kk),k,kk)))
+  }
+  E = eigen(GC,T)
+  if(any(E$values<0.01)){
+    E$values = ifelse(E$values>0.01,E$values,0.01)
+    GC = E$vectors %*% diag(E$values) %*% t(E$vectors)
+    GC = cov2cor(GC)}
+  GC = round(GC,2)
+  return(GC)
+}
+
+#############################################################################################################                   
 
 # Main function
 mm = function(y,random=NULL,fixed=NULL,data=NULL,

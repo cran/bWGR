@@ -1,8 +1,8 @@
 Package: bWGR
 Type: Package
 Title: Bayesian Whole-Genome Regression
-Version: 2.2.7
-Date: 2024-04-04
+Version: 2.2.8
+Date: 2024-04-27
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 Authors@R: c(person("Alencar", "Xavier", role=c("aut", "cre"), email = "alenxav@gmail.com", comment = c(ORCID = "0000-0001-5034-9954")), person("William", "Muir", role=c("aut")), person("David", "Habier", role=c("aut")), person("Kyle", "Kocak", role=c("aut")),person("Shizhong", "Xu", role=c("aut")),person("Katy", "Rainey", role=c("aut")))
 Description: Whole-genome regression methods on Bayesian framework fitted via EM
@@ -14,11 +14,11 @@ LinkingTo: Rcpp, RcppEigen
 Depends: R (>= 4.0)
 NeedsCompilation: yes
 Repository: CRAN
-Packaged: 2024-04-04 21:59:31 UTC; rd7564
+Packaged: 2024-04-28 00:22:20 UTC; rd7564
 Author: Alencar Xavier [aut, cre] (<https://orcid.org/0000-0001-5034-9954>),
   William Muir [aut],
   David Habier [aut],
   Kyle Kocak [aut],
   Shizhong Xu [aut],
   Katy Rainey [aut]
-Date/Publication: 2024-04-04 22:33:00 UTC
+Date/Publication: 2024-04-28 02:20:03 UTC

@@ -22,6 +22,8 @@
 \alias{solver2xF}
 \alias{XFUVBETA}
 \alias{XSEMF}
+\alias{ZFUVBETA}
+\alias{ZSEMF}
 
 \title{
   Multivariate Regression
@@ -47,7 +49,7 @@
   
 }
 \details{
-  
+
  Algorithm is described in Xavier and Habier (2022). The model for the ridge regression (mrr) is as follows:
     
     \deqn{Y = Mu + XB + E}
@@ -86,7 +88,9 @@
 
     11) \code{GSEMF(Y,X,npc=-1):} Float GSEM.
 
-    12) \code{XSEMF(Y,X,npc=0):} GSEMF using PCs only.
+    12) \code{XSEMF(Y,X,npc=0):} GSEMF using PCs only - h2 fixed at 0.5.
+    
+    13) \code{ZSEMF(Y,X):} GSEMF using PCs only - h2 is estimated.
     
 In GSEM and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
 
@@ -95,6 +99,10 @@ In GSEM and MEGA, 'npc' means number of latent spaces if input is above zero, ot
 \value{
   
   Returns a list with the random effect covariances (\code{Vb}), residual variances (\code{Ve}), genetic correlations (\code{GC}), matrix with marker effects (\code{b}) or eigenvector effects (if \code{mkr}), intercepts (\code{mu}), heritabilities (\code{h2}), and a matrix with fitted values (\code{hat}).
+  
+   NOTE: Numeric stability is a serious concern with multivariate models with large number of response variables, as the covariance matrix is often not invesible. If output is filled with NAs, try using \code{MRR3} and play with some parameters. For example, one may try adding priors to stabilize variances, e.g., \code{fit=MRR3(Y,X,df0=20)}. 
+  
+  
   
 }
 
