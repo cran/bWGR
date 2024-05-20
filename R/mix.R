@@ -1201,7 +1201,8 @@ predict_FLMSS = function(x, data=NULL, M=NULL){
 #############################################################################################################                   
 
 # MegaSEM
-SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),TOI=NULL,Beta0=NULL,RndLatSp=TRUE){
+SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),
+               TOI=NULL,Beta0=NULL,RndLatSp=TRUE){
   cat('Using',PCs,'latent spaces\n')
   k = ncol(Y)
   Mu = colMeans(Y,na.rm=T)
@@ -1215,7 +1216,7 @@ SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),TOI=NULL,Beta0=NULL,Rn
       w = which(!is.na(y))
       yy = y[w]
       xx = Z[w,]
-      beta = MRR3(matrix(yy),xx)
+      beta = MRR3F(matrix(yy),xx,NonLinearFactor=2,weight_prior_h2=0.1)
       if((100*i/k)%%10==0) cat('===')
       return( c(beta$b) )})
     cat('|\n')
@@ -1237,8 +1238,8 @@ SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),TOI=NULL,Beta0=NULL,Rn
     xx = Z[w,]
     if(RndLatSp){
       X = cbind(G[w,] %*% E)
-      b0 = MRR3(matrix(yy),X)
-      b1 = MRR3(matrix(yy-b0$hat),xx)
+      b0 = MRR3F(matrix(yy),X,weight_prior_h2=0.1)
+      b1 = MRR3F(matrix(yy-b0$hat),xx,NonLinearFactor=2,weight_prior_h2=0.1)
       betaf = c( Beta0 %*% E %*% b0$b ) + c(b1$b)
     }else{
       X = cbind(1,G[w,] %*% E)
@@ -1259,9 +1260,18 @@ SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),TOI=NULL,Beta0=NULL,Rn
     pa = cor(G,Y,use='p'); GC = 0.5*(pa+t(pa))
     for(i in 1:ncol(G)) G[,i]=G[,i]+Mu[i]
     h2 = 1-c(colMeans((Y-G)*Yc,na.rm=T))/apply(Y,2,var,na.rm=T)}
-  
   rownames(MvBeta) = colnames(Z)
   if(is.null(TOI)){ colnames(MvBeta) = colnames(Y)  }else{ colnames(MvBeta) = colnames(Y)[TOI] } 
   out = list(Univ=Beta0,SEM=MvBeta,Mu=Mu)
   out = list(mu=Mu,b=MvBeta,GC=GC,hat=G,h2=h2)
   return(out)}
+
+#############################################################################################################                   
+
+mrr = function(Y,X,...) MRR3(Y,X,...)
+
+mrr_float = function(Y,X,...) MRR3F(Y,X,...)
+
+mkr = function(Y,K,...) MRR3(Y,K2X(K),...)
+
+mkr2X = function(Y,K1,K2,...) mrr2X(Y,K2X(K1,...),K2X(K2,...))

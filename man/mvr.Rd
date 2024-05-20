@@ -11,17 +11,15 @@
 \alias{mrr_svd}
 \alias{MEGA}
 \alias{GSEM}
-\alias{MEGAF}
-\alias{GSEMF}
-
 \alias{UVBETA}
 \alias{solver1x}
 \alias{solver2x}
 \alias{FUVBETA}
 \alias{solver1xF}
 \alias{solver2xF}
-\alias{XFUVBETA}
 \alias{XSEMF}
+\alias{FUVBETA}
+\alias{XFUVBETA}
 \alias{ZFUVBETA}
 \alias{ZSEMF}
 
@@ -32,9 +30,9 @@
   Multivariate model to find breeding values.
 }
 \usage{
-  mkr(Y,K)
-  mrr(Y,X)
-  mrr_float(Y,X)
+  mkr(Y,K,...)
+  mrr(Y,X,...)
+  mrr_float(Y,X,...)
 }
 \arguments{
   \item{Y}{
@@ -45,6 +43,9 @@
   }
   \item{X}{
     Numeric matrix containing the genotyping matrix.
+  } 
+  \item{...}{
+    Arguments to pass to MRR3/MRR3F. See \code{args(MRR3)}.
   } 
   
 }
@@ -78,19 +79,15 @@
 
     06) \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1):} Multivariate model with fixed effects.
 
-    07) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):} Fits a XFA structural equation model.
+    07) \code{SEM(Y,Z,...):} Fits a XFA structural equation model (i.e., MegaSEM).
 
-    08) \code{MEGA(Y,X,npc=-1):} Toy MegaLMM implementation.
+    08) \code{MEGA(Y,X,npc=-1):} Toy implementation of MegaLMM.
 
-    09) \code{GSEM(Y,X,npc=-1):} SEM with all components for G.
+    09) \code{GSEM(Y,X,npc=-1):} Toy C++ implementaiton of MegaSEM.
 
-    10) \code{MEGAF(Y,X,npc=-1):} Float MEGA.
-
-    11) \code{GSEMF(Y,X,npc=-1):} Float GSEM.
-
-    12) \code{XSEMF(Y,X,npc=0):} GSEMF using PCs only - h2 fixed at 0.5.
+    10) \code{XSEMF(Y,X,npc=0):} PC-based SEM - h2 fixed at 0.5.
     
-    13) \code{ZSEMF(Y,X):} GSEMF using PCs only - h2 is estimated.
+    11) \code{ZSEMF(Y,X):} PC-based SEM - h2 is estimated.
     
 In GSEM and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
 
@@ -137,6 +134,8 @@ In GSEM and MEGA, 'npc' means number of latent spaces if input is above zero, ot
     # Accuracy
     
     diag(cor(TBV,test$hat))
+    
+    # try: demo(multivariates)
 
 }
 
