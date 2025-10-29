@@ -736,7 +736,7 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
     if(RND) Z0 = Z
     wNA = which(is.na(y))
     y = y[-wNA];
-    if(FIX) X = X[-wNA,]
+    if(FIX) X = X[-wNA,,drop=F]
     if(RND) Z = lapply(Z,function(z) z[-wNA,] )
     for(i in 1:nr){
       cm = colSums(Z[[i]]);
@@ -1275,3 +1275,16 @@ mrr_float = function(Y,X,...) MRR3F(Y,X,...)
 mkr = function(Y,K,...) MRR3(Y,K2X(K),...)
 
 mkr2X = function(Y,K1,K2,...) mrr2X(Y,K2X(K1,...),K2X(K2,...))
+
+#############################################################################################################                   
+
+# 10/29/2025 wrapper that adds labels to the outputs of multivariate models
+mwgr = function(Y,X,solver=MRR3F,...){
+  res = solver(Y,X,...)
+  if('hat' %in% ls(res)) dimnames(res$hat) = dimnames(Y)
+  if('b' %in% ls(res)) dimnames(res$b) = list(colnames(X), colnames(Y))
+  if('GC' %in% ls(res)) dimnames(res$GC) = list(colnames(Y), colnames(Y))
+  if('h2' %in% ls(res)) names(res$h2) = colnames(Y)
+  if('mu' %in% ls(res)) names(res$mu) = colnames(Y)
+  return(res)
+}
