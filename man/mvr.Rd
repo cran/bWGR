@@ -23,13 +23,16 @@
 \alias{XSEMF}
 \alias{YSEMF}
 \alias{ZSEMF}
-\alias{PEGS}
 \alias{mwgr}
 \alias{ClusterBlup}
 \alias{IncMatrix}
 \alias{EM_recluster}
 \alias{Get_Cluster_Corr}
+\alias{PEGS}
 \alias{PEGSX}
+\alias{PEGSZ}
+\alias{PEGS_sparse}
+\alias{PEGSZ_sparse}
 
 \title{
   Multivariate Regression
@@ -110,7 +113,12 @@
     13) \code{PEGS(Y,X,...):} Light PEGS implementation, float precision.
     
     14) \code{PEGSX(Y,X,Z_list,...):} MLM with fixed effect and multiple random effects.
+
+    15) \code{PEGSZ(Y,X_list,...):} MLM with multiple random effects.
     
+    16) \code{PEGS_sparse(Y,S,...):} Simple PEGS, but taking sparse feature matrix.
+    
+    17) \code{PEGSZ_sparse(Y,X_list,...):} PEGSZ taking list of sparse feature matrices.
     
 In GSEM, XSEMF and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
 
@@ -167,3 +175,4 @@ Xavier, A and Habier, D. (2022). A new approach fits multivariate genomic predic
 
 Xavier, A et al. (2024). Megavariate Methods Capture Complex Genotype-by-Environment Interactions. Genetics, DOI: 10.1093/genetics/iyae179
 }
+
